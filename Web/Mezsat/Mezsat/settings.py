@@ -78,7 +78,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'auction_db',
         'USER': 'auction_user',
-        'PASSWORD': 'auction_password',
+        'PASSWORD': 'esadinyo',
         'HOST': 'localhost',
         'PORT': '5432',
     }
