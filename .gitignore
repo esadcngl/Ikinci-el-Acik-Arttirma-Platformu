@@ -1,0 +1,87 @@
+# --- Genel ---
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.DS_Store
+.env
+.venv/
+venv/
+node_modules/
+dist/
+build/
+*.tmp
+*.bak
+
+# --- Django ---
+/Web/db.sqlite3
+/Web/media/
+Web/staticfiles/
+Web/.env
+/Web/*.sqlite3
+/Web/**/__pycache__/
+/Web/**/migrations/*.pyc
+/Web/**/migrations/__pycache__/
+/Web/**/migrations/*.py
+!/Web/**/migrations/__init__.py
+
+# --- React Native ---
+/Mobil/node_modules/
+Mobil/android/.gradle/
+/Mobil/android/.idea/
+/Mobil/android/local.properties
+Mobil/ios/Pods/
+/Mobil/ios/build/
+/Mobil/ios/*.xcworkspace
+/Mobil/ios/DerivedData/
+/Mobil/ios/*.xcodeproj/project.xcworkspace/
+/Mobil/.expo/
+Mobil/.expo-shared/
+/Mobil/.vscode/
+Mobil/*.log
+
+# --- PyCharm / VSCode özel dosyalar ---
+*.iml
+.idea/
+.vscode/
+
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# OS generated files
+*.swp
+*~
+Thumbs.db
+.DS_Store
+
+# IDE / Editor directories
+.vscode/
+.idea/
+
+# Virtual environment (örnek isimler, kendi kullandığınıza göre düzenleyin)
+venv/
+env/
+.env/
+virtualenv/
+
+# Django'ya özgü
+*.log
+db.sqlite3  # Eğer geliştirme için SQLite kullanıyorsanız
+/media/     # Kullanıcı tarafından yüklenen medya dosyaları (settings.MEDIA_ROOT)
+/staticfiles/ # collectstatic tarafından toplanan statik dosyalar (settings.STATIC_ROOT)
+
+# Hassas bilgiler içeren dosyalar
+.env        # Ortam değişkenlerini saklayan dosya
+*.local     # Yerel ayar dosyaları (örn: settings_local.py)
+
+# Diğer bağımlılık veya build dosyaları
+*.egg-info/
+dist/
+build/
