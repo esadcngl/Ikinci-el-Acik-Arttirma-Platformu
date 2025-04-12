@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .models import Bid, Auction
-from .serializers import BidSerializer
+from .serializers import BidSerializer , AuctionSerializer
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -64,3 +64,20 @@ class RejectBidView(APIView):
         bid.status = "rejected"
         bid.save()
         return Response({"detail": "Teklif reddedildi."}, status=200)
+    
+
+class AuctionCreateView(generics.CreateAPIView):
+    queryset = Auction.objects.all()
+    serializer_class = AuctionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class AuctionListView(generics.ListAPIView):
+    serializer_class = AuctionSerializer
+
+    def get_queryset(self):
+        return Auction.objects.filter(status='active', is_active=True).order_by('-created_at')
+    
+class AuctionDetailView(generics.RetrieveAPIView):
+    queryset = Auction.objects.all()
+    serializer_class = AuctionSerializer
+    lookup_field = 'pk'

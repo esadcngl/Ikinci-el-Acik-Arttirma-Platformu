@@ -32,18 +32,18 @@ Web/.env
 
 # --- React Native ---
 /Mobil/node_modules/
-Mobil/android/.gradle/
+/Mobil/android/.gradle/
 /Mobil/android/.idea/
 /Mobil/android/local.properties
-Mobil/ios/Pods/
+/Mobil/ios/Pods/
 /Mobil/ios/build/
 /Mobil/ios/*.xcworkspace
 /Mobil/ios/DerivedData/
 /Mobil/ios/*.xcodeproj/project.xcworkspace/
 /Mobil/.expo/
-Mobil/.expo-shared/
+/Mobil/.expo-shared/
 /Mobil/.vscode/
-Mobil/*.log
+/Mobil/*.log
 
 # --- PyCharm / VSCode özel dosyalar ---
 *.iml
@@ -85,3 +85,5 @@ db.sqlite3  # Eğer geliştirme için SQLite kullanıyorsanız
 *.egg-info/
 dist/
 build/
+
+/Web/Mezsat/media/auction_images/
