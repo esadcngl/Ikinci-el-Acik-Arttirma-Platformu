@@ -23,4 +23,6 @@ urlpatterns = [
     path('favorites/', FavoriteListView.as_view(), name='favorite-list'),
     path('my-auctions/', MyAuctionListView.as_view(), name='my-auctions'),
     path('users/<int:user_id>/auctions/', UserAuctionsView.as_view(), name='user-auctions'),
+    path('auctions/<int:pk>/edit/', AuctionUpdateView.as_view(), name='auction-edit'),
+    path('auctions/<int:pk>/delete/', AuctionDeleteView.as_view(), name='auction-delete'),
 ]

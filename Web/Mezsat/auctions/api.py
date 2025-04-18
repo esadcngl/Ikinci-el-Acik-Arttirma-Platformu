@@ -84,6 +84,28 @@ class AuctionDetailView(generics.RetrieveAPIView):
     serializer_class = AuctionSerializer
     lookup_field = 'pk'
 
+class AuctionUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Auction.objects.all()
+    serializer_class = AuctionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_update(self, serializer):
+        auction = self.get_object()
+        if auction.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied("Bu ilanı düzenleme yetkiniz yok.")
+        serializer.save()
+
+class AuctionDeleteView(generics.DestroyAPIView):
+    queryset = Auction.objects.all()
+    serializer_class = AuctionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_destroy(self, instance):
+        user = self.request.user
+        if instance.owner != user and not user.is_staff:
+            raise PermissionDenied("Bu ilanı silmeye yetkiniz yok.")
+        instance.delete()
+        
 class CommentCreateView(generics.CreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
