@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Bid , Auction
+from .models import Bid , Auction ,Comment
 
 class BidSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,3 +33,15 @@ class AuctionSerializer(serializers.ModelSerializer):
         validated_data['owner'] = self.context['request'].user
         return super().create(validated_data)
     
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'auction', 'user', 'text', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at', 'auction']
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        validated_data['auction'] = self.context['auction']
+        return super().create(validated_data)
