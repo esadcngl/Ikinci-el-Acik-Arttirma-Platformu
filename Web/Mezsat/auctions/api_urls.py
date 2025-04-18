@@ -19,4 +19,8 @@ urlpatterns = [
     path('auctions/<int:pk>/comments/', CommentCreateView.as_view(), name='comment-create'),
     path('auctions/<int:pk>/comments/list/', CommentListView.as_view(), name='comment-list'),
     path('comments/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
+    path('auctions/<int:pk>/favorite/', FavoriteToggleView.as_view(), name='favorite-toggle'),
+    path('favorites/', FavoriteListView.as_view(), name='favorite-list'),
+    path('my-auctions/', MyAuctionListView.as_view(), name='my-auctions'),
+    path('users/<int:user_id>/auctions/', UserAuctionsView.as_view(), name='user-auctions'),
 ]

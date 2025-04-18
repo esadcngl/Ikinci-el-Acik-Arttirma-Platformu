@@ -56,4 +56,15 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.auction.title[:20]}"   
+        return f"{self.user.username} - {self.auction.title[:20]}"
+
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorites')
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'auction')
+
+    def __str__(self):
+        return f"{self.user.username} favorited {self.auction.title}"   

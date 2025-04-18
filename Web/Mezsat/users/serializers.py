@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-
+from auctions.models import Favorite, Auction
+from .models import CustomUser
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -39,3 +40,19 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             if value.content_type not in allowed_types:
                 raise serializers.ValidationError("Sadece JPG veya PNG yükleyebilirsiniz.")
         return value
+
+class AuctionMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Auction
+        fields = ['id', 'title', 'image', 'starting_price']
+
+class ProfileSerializer(serializers.ModelSerializer):
+    favorites = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'phone', 'profile_image', 'favorites']
+
+    def get_favorites(self, obj):
+        favorites = Favorite.objects.filter(user=obj)
+        return AuctionMiniSerializer([fav.auction for fav in favorites], many=True).data

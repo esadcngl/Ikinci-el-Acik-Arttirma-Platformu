@@ -1,7 +1,8 @@
+from django.db import IntegrityError
 from rest_framework import generics, permissions
 from rest_framework.exceptions import PermissionDenied
-from .models import Bid, Auction , Comment
-from .serializers import BidSerializer , AuctionSerializer , CommentSerializer
+from .models import Bid, Auction , Comment , Favorite
+from .serializers import BidSerializer , AuctionSerializer , CommentSerializer , FavoriteSerializer
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -114,3 +115,48 @@ class CommentDeleteView(generics.DestroyAPIView):
             instance.delete()
         else:
             raise PermissionDenied("Bu yorumu silmeye yetkiniz yok.")
+
+# class AddFavoriteView(generics.CreateAPIView):
+#     serializer_class = FavoriteSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+#     queryset = Favorite.objects.all()
+
+class FavoriteToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            auction = Auction.objects.get(pk=pk)
+        except Auction.DoesNotExist:
+            return Response({'detail': 'İlan bulunamadı.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Toggle işlemi: varsa sil, yoksa ekle
+        favorite, created = Favorite.objects.get_or_create(user=user, auction=auction)
+
+        if not created:
+            favorite.delete()
+            return Response({'favorited': False, 'message': 'Favoriden kaldırıldı.'}, status=status.HTTP_200_OK)
+
+        return Response({'favorited': True, 'message': 'Favorilere eklendi.'}, status=status.HTTP_201_CREATED)
+    
+class FavoriteListView(generics.ListAPIView):
+    serializer_class = FavoriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user).order_by('-created_at')
+
+class MyAuctionListView(generics.ListAPIView):
+    serializer_class = AuctionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Auction.objects.filter(owner=self.request.user).order_by('-created_at')
+    
+class UserAuctionsView(generics.ListAPIView):
+    serializer_class = AuctionSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        return Auction.objects.filter(owner_id=user_id, is_active=True).order_by('-created_at')

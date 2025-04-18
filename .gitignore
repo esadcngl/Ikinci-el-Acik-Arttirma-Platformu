@@ -87,3 +87,6 @@ dist/
 build/
 
 /Web/Mezsat/media/auction_images/
+/Web/Mezsat/users/__pycache__/
+*.pyc
+
