@@ -25,4 +25,6 @@ urlpatterns = [
     path('users/<int:user_id>/auctions/', UserAuctionsView.as_view(), name='user-auctions'),
     path('auctions/<int:pk>/edit/', AuctionUpdateView.as_view(), name='auction-edit'),
     path('auctions/<int:pk>/delete/', AuctionDeleteView.as_view(), name='auction-delete'),
+    path('categories/', CategoryListView.as_view(), name='category-list'),
+    path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
 ]

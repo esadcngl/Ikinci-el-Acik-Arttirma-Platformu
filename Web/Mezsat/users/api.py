@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RegisterSerializer,UserUpdateSerializer ,ProfileSerializer
+from .serializers import RegisterSerializer,UserUpdateSerializer ,ProfileSerializer , UserPublicProfileSerializer
 
 User = get_user_model()
 
@@ -29,3 +29,13 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    
+class UserPublicProfileView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'Kullanıcı bulunamadı.'}, status=404)
+
+        serializer = UserPublicProfileSerializer(user)
+        return Response(serializer.data)

@@ -1,13 +1,16 @@
 from django.db import IntegrityError
 from rest_framework import generics, permissions
 from rest_framework.exceptions import PermissionDenied
-from .models import Bid, Auction , Comment , Favorite
-from .serializers import BidSerializer , AuctionSerializer , CommentSerializer , FavoriteSerializer
+from .models import Bid, Auction , Comment , Favorite , Category
+from .serializers import BidSerializer , AuctionSerializer , CommentSerializer , FavoriteSerializer ,CategorySerializer
+from rest_framework.permissions import IsAdminUser
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 class BidCreateView(generics.CreateAPIView):
     serializer_class = BidSerializer
@@ -73,11 +76,21 @@ class AuctionCreateView(generics.CreateAPIView):
     serializer_class = AuctionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class AuctionListView(generics.ListAPIView):
     serializer_class = AuctionSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'starting_price', 'end_time']
+    filterset_fields = {
+        'starting_price': ['gte', 'lte'],
+        'buy_now_price': ['gte', 'lte'],
+        'status': ['exact'],
+        'category': ['exact'],
+    }
 
     def get_queryset(self):
-        return Auction.objects.filter(status='active', is_active=True).order_by('-created_at')
+        return Auction.objects.filter(status='active', is_active=True)
     
 class AuctionDetailView(generics.RetrieveAPIView):
     queryset = Auction.objects.all()
@@ -182,3 +195,12 @@ class UserAuctionsView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
         return Auction.objects.filter(owner_id=user_id, is_active=True).order_by('-created_at')
+
+class CategoryListView(generics.ListAPIView):
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer
+
+class CategoryCreateView(generics.CreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminUser]  # ⛔️ Sadece admin kullanıcılar kategori oluşturabilir

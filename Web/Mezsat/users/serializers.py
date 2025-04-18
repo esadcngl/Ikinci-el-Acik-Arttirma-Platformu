@@ -56,3 +56,18 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_favorites(self, obj):
         favorites = Favorite.objects.filter(user=obj)
         return AuctionMiniSerializer([fav.auction for fav in favorites], many=True).data
+
+class UserPublicProfileSerializer(serializers.ModelSerializer):
+    auction_count = serializers.SerializerMethodField()
+    auctions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'profile_image', 'auction_count', 'auctions']
+
+    def get_auction_count(self, obj):
+        return Auction.objects.filter(owner=obj, is_active=True).count()
+
+    def get_auctions(self, obj):
+        queryset = Auction.objects.filter(owner=obj, is_active=True)
+        return AuctionMiniSerializer(queryset, many=True).data

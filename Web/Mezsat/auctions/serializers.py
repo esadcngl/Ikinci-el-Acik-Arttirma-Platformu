@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Bid , Auction ,Comment , Favorite
+from .models import Bid , Auction ,Comment , Favorite , Category
 
 class BidSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,21 +13,20 @@ class BidSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class AuctionSerializer(serializers.ModelSerializer):
+    category_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Auction
         fields = [
-            'id',
-            'title',
-            'description',
-            'image',
-            'starting_price',
-            'buy_now_price',
-            'end_time',
-            'status',
-            'is_active',
-            'created_at',
+            'id', 'title', 'description', 'image',
+            'starting_price', 'buy_now_price', 'end_time',
+            'status', 'is_active', 'created_at',
+            'category', 'category_name'
         ]
-        read_only_fields = ['id', 'status', 'is_active', 'created_at']
+        read_only_fields = ['id', 'status', 'is_active', 'created_at', 'category_name']
+
+    def get_category_name(self, obj):
+        return obj.category.name if obj.category else None
 
     def create(self, validated_data):
         validated_data['owner'] = self.context['request'].user
@@ -57,3 +56,9 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['id', 'auction', 'created_at']
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+        read_only_fields = ['id']
