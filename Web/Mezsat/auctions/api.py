@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
+from rest_framework import status , serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
@@ -20,15 +20,19 @@ class BidCreateView(generics.CreateAPIView):
         auction_id = self.kwargs.get('pk')
         auction = Auction.objects.get(pk=auction_id)
 
+        if auction.status == 'sold':
+            raise ValidationError("Bu ilana teklif verilemez. İlan zaten satıldı.")
+
         if not auction.is_active:
             raise ValidationError("Bu ilan artık aktif değil. Teklif verilemez.")
 
         amount = self.request.data.get('amount')
+
         if auction.buy_now_price and float(amount) >= float(auction.buy_now_price):
             auction.status = 'pending_payment'
             auction.save()
 
-        serializer.save(auction=auction)
+        serializer.save(auction=auction, user=self.request.user)
 
 class BidListView(generics.ListAPIView):
     serializer_class = BidSerializer
@@ -128,6 +132,14 @@ class CommentCreateView(generics.CreateAPIView):
         auction = Auction.objects.get(pk=self.kwargs['pk'])
         context['auction'] = auction
         return context
+
+    def perform_create(self, serializer):
+        auction = Auction.objects.get(pk=self.kwargs['pk'])
+
+        if auction.status == 'sold':
+            raise serializers.ValidationError("Bu ilana yorum yapılamaz. İlan satıldı.")
+
+        serializer.save(user=self.request.user, auction=auction)
     
 class CommentListView(generics.ListAPIView):
     serializer_class = CommentSerializer
@@ -204,3 +216,47 @@ class CategoryCreateView(generics.CreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUser]  # ⛔️ Sadece admin kullanıcılar kategori oluşturabilir
+
+class BuyNowView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, auction_id):
+        try:
+            auction = Auction.objects.get(id=auction_id)
+        except Auction.DoesNotExist:
+            return Response({"detail": "İlan bulunamadı."}, status=status.HTTP_404_NOT_FOUND)
+
+        if auction.status != 'active' or not auction.is_active:
+            return Response({"detail": "İlan şu anda satın alınamaz."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not auction.buy_now_price:
+            return Response({"detail": "Bu ilanın 'buy now' fiyatı yok."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ödemeyi başarıyla geçtiğimizi varsayalım
+        auction.status = 'pending_payment'
+        auction.save()
+
+        return Response({
+            "detail": "Satın alma işlemi başlatıldı. Ödeme bekleniyor.",
+            "auction_id": auction.id,
+            "buy_now_price": auction.buy_now_price
+        }, status=status.HTTP_200_OK)
+    
+class CompletePaymentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, auction_id):
+        try:
+            auction = Auction.objects.get(id=auction_id)
+        except Auction.DoesNotExist:
+            return Response({"detail": "İlan bulunamadı."}, status=404)
+
+        if auction.status != 'pending_payment':
+            return Response({"detail": "Bu ilanın ödeme süreci aktif değil."}, status=400)
+
+        # Ödeme tamamlandı simülasyonu
+        auction.status = 'sold'
+        auction.is_active = False
+        auction.save()
+
+        return Response({"detail": "Satın alma tamamlandı. İlan kapatıldı."})

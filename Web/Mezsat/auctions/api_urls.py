@@ -27,4 +27,6 @@ urlpatterns = [
     path('auctions/<int:pk>/delete/', AuctionDeleteView.as_view(), name='auction-delete'),
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
+    path('auctions/<int:auction_id>/buy-now/', BuyNowView.as_view(), name='auction-buy-now'),
+    path('auctions/<int:auction_id>/complete-payment/', CompletePaymentView.as_view(), name='complete-payment'),
 ]
