@@ -1,6 +1,522 @@
-<h2>Kayıt Ol</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Kayıt Ol</button>
-</form>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt Ol | Mezsat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .input-focus:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+        .password-strength {
+            height: 4px;
+            background-color: #e5e7eb;
+            margin-top: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        /* Add styles for result message colors */
+        #result.success { color: #10b981; } /* emerald-500 */
+        #result.error { color: #ef4444; } /* red-500 */
+        #result.info { color: #3b82f6; } /* blue-500 */
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="flex items-center"> <i class="fas fa-gavel text-indigo-600 text-2xl mr-2"></i>
+                            <span class="text-xl font-bold text-gray-900">Mezsat</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
+                    <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a> <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
+                    <div class="flex items-center space-x-4">
+                        <a href="/login" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Giriş Yap</a> <a href="/register" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"> <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+                        </a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex items-center md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Ana Sayfa</a> <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Nasıl Çalışır?</a>
+                <div class="pt-2 border-t">
+                    <a href="/login/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Giriş Yap</a> <a href="/register/" class="block px-3 py-2 mt-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center"> <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 fade-in">
+            <div class="text-center">
+                <i class="fas fa-gavel text-indigo-600 text-5xl mb-4"></i>
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                    Mezsat'a Kayıt Ol
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Hesap oluşturarak açık artırmalara katılabilirsiniz
+                </p>
+            </div>
+
+            <div class="mt-8 bg-white py-8 px-4 shadow rounded-lg sm:px-10 card-hover">
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Kullanıcı Adı</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input id="username" name="username" type="text" autocomplete="username" required
+                                   class="py-2 pl-10 block w-full border border-gray-300 rounded-md input-focus focus:outline-none sm:text-sm"
+                                   placeholder="kullaniciadi">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-posta Adresi</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                            <input id="email" name="email" type="email" autocomplete="email" required
+                                   class="py-2 pl-10 block w-full border border-gray-300 rounded-md input-focus focus:outline-none sm:text-sm"
+                                   placeholder="email@example.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefon Numarası</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-phone text-gray-400"></i>
+                            </div>
+                            <input id="phone" name="phone" type="tel" autocomplete="tel" required
+                                   class="py-2 pl-10 block w-full border border-gray-300 rounded-md input-focus focus:outline-none sm:text-sm"
+                                   placeholder="5551234567">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="password" name="password" type="password" autocomplete="new-password" required
+                                   class="py-2 pl-10 block w-full border border-gray-300 rounded-md input-focus focus:outline-none sm:text-sm"
+                                   placeholder="••••••••">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="password-strength mt-1">
+                            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500" id="passwordHelpText">
+                            Şifreniz en az 8 karakter uzunluğunda olmalıdır.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label for="password2" class="block text-sm font-medium text-gray-700 mb-1">Şifre (Tekrar)</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="password2" name="password2" type="password" autocomplete="new-password" required
+                                   class="py-2 pl-10 block w-full border border-gray-300 rounded-md input-focus focus:outline-none sm:text-sm"
+                                   placeholder="••••••••">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" id="togglePassword2">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500" id="passwordMatchText"></p>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input id="terms" name="terms" type="checkbox" required
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="terms" class="ml-2 block text-sm text-gray-700">
+                            <a href="#" class="text-indigo-600 hover:text-indigo-500">Kullanım Koşulları</a> ve
+                            <a href="#" class="text-indigo-600 hover:text-indigo-500">Gizlilik Politikasını</a> okudum ve kabul ediyorum.
+                        </label>
+                    </div>
+
+                    <div>
+                        <button type="submit" id="submitButton"
+                                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition disabled:opacity-50"> <span class="absolute left-0 inset-y-0 flex items-center pl-3 submit-icon-span"> <i class="fas fa-user-plus text-indigo-300 group-hover:text-indigo-200"></i>
+                            </span>
+                            <span class="submit-text-span">Kayıt Ol</span> </button>
+                    </div>
+
+                    <div id="result" class="text-center text-sm py-2"></div> </form>
+
+                
+
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Zaten hesabınız var mı?
+                        <a href="/login/" class="font-medium text-indigo-600 hover:text-indigo-500"> Giriş Yap
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Mezsat</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Hakkımızda</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Kariyer</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Basın</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Yardım</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Sıkça Sorulan Sorular</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Güvenlik</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">İletişim</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Kurallar</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Kullanım Koşulları</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Gizlilik Politikası</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Çerez Politikası</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Bizi Takip Edin</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-gray-300">Uygulamayı indirin:</p>
+                        <div class="flex space-x-2 mt-2">
+                            <a href="#" class="block"><img src="https://via.placeholder.com/120x40?text=App+Store" alt="App Store" class="h-10"></a>
+                            <a href="#" class="block"><img src="https://via.placeholder.com/120x40?text=Google+Play" alt="Google Play" class="h-10"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-700 text-center">
+                <p class="text-gray-400">© 2023 Mezsat. Tüm hakları saklıdır.</p> </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- TEMPLATE UI HELPER SCRIPTS ---
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+
+        // Toggle password visibility function
+        function setupPasswordToggle(inputId, buttonId) {
+            const button = document.getElementById(buttonId);
+            const input = document.getElementById(inputId);
+
+            if (button && input) {
+                button.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            }
+        }
+
+        setupPasswordToggle('password', 'togglePassword');
+        setupPasswordToggle('password2', 'togglePassword2');
+
+
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('passwordStrengthBar');
+        const helpText = document.getElementById('passwordHelpText');
+
+        if (passwordInput && strengthBar && helpText) {
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                if (password.length > 0) strength += 20;
+                if (password.length >= 8) strength += 20;
+                if (/[A-Z]/.test(password)) strength += 20;
+                if (/[0-9]/.test(password)) strength += 20;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+
+                strengthBar.style.width = strength + '%';
+
+                if (strength < 40) {
+                    strengthBar.style.backgroundColor = '#ef4444'; // red-500
+                    helpText.textContent = 'Zayıf şifre';
+                    helpText.className = 'mt-1 text-xs text-red-500';
+                } else if (strength < 80) {
+                    strengthBar.style.backgroundColor = '#f59e0b'; // amber-500
+                    helpText.textContent = 'Orta seviye şifre';
+                    helpText.className = 'mt-1 text-xs text-amber-500';
+                } else {
+                    strengthBar.style.backgroundColor = '#10b981'; // emerald-500
+                    helpText.textContent = 'Güçlü şifre';
+                    helpText.className = 'mt-1 text-xs text-emerald-500';
+                }
+            });
+        }
+
+
+        // Password match checker
+        const password2Input = document.getElementById('password2');
+        const matchText = document.getElementById('passwordMatchText');
+
+        if (passwordInput && password2Input && matchText) {
+             const checkPasswordMatch = () => {
+                const password = passwordInput.value;
+                const password2 = password2Input.value;
+
+                if (password2.length === 0) {
+                    matchText.textContent = '';
+                    return;
+                }
+
+                if (password === password2) {
+                    matchText.textContent = 'Şifreler eşleşiyor';
+                    matchText.className = 'mt-1 text-xs text-emerald-500';
+                } else {
+                    matchText.textContent = 'Şifreler eşleşmiyor';
+                    matchText.className = 'mt-1 text-xs text-red-500';
+                }
+            };
+            passwordInput.addEventListener('input', checkPasswordMatch);
+            password2Input.addEventListener('input', checkPasswordMatch);
+        }
+
+
+        // --- ORIGINAL FORM SUBMISSION SCRIPT (Adapted) ---
+
+        const form = document.getElementById('registerForm');
+        const result = document.getElementById('result');
+        const submitButton = document.getElementById('submitButton');
+        const submitButtonIconSpan = submitButton?.querySelector('.submit-icon-span'); // Optional chaining
+        const submitButtonTextSpan = submitButton?.querySelector('.submit-text-span'); // Optional chaining
+
+
+        if (form && result && submitButton && submitButtonIconSpan && submitButtonTextSpan) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Basic client-side validation for password match
+                if (form.password.value !== form.password2.value) {
+                    result.textContent = 'Şifreler eşleşmiyor!';
+                    result.className = 'text-center text-sm py-2 error'; // Use CSS class for color
+                    return;
+                }
+                // Basic client-side validation for terms checkbox
+                if (!form.terms.checked) {
+                     result.textContent = 'Lütfen Kullanım Koşulları ve Gizlilik Politikasını kabul edin.';
+                     result.className = 'text-center text-sm py-2 error'; // Use CSS class for color
+                    return;
+                }
+
+
+                // Disable button and show loading state
+                submitButton.disabled = true;
+                submitButtonIconSpan.innerHTML = '<i class="fas fa-spinner fa-spin text-indigo-300 group-hover:text-indigo-200"></i>';
+                submitButtonTextSpan.textContent = 'Kayıt Olunuyor...';
+                result.textContent = 'Kayıt işlemi yapılıyor...';
+                result.className = 'text-center text-sm py-2 info'; // Use CSS class for color
+
+
+                const data = {
+                    username: form.username.value,
+                    email: form.email.value,
+                    phone: form.phone.value,
+                    password: form.password.value,
+                    password2: form.password2.value // Send password2 as well, backend might use it
+                };
+
+                try {
+                    // 1. Registration request
+                    const registerRes = await fetch('/api/register/', { // Using the original API endpoint
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // Add CSRF token header if needed for Django/other frameworks
+                            // 'X-CSRFToken': getCookie('csrftoken') // Example function needed
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (!registerRes.ok) {
+                        // Attempt to parse error JSON, otherwise use status text
+                        let errorData;
+                        try {
+                           errorData = await registerRes.json();
+                        } catch (jsonError) {
+                           errorData = { detail: registerRes.statusText || 'Bilinmeyen kayıt hatası' };
+                        }
+                        // Display error message(s)
+                        // Join multiple errors if the backend sends them in an array or object
+                        let errorMessage = "Kayıt sırasında hata oluştu: ";
+                        if (typeof errorData === 'object' && errorData !== null) {
+                           errorMessage += Object.values(errorData).flat().join(' '); // Flatten nested errors if any
+                        } else {
+                           errorMessage += errorData; // Handle plain string errors
+                        }
+
+                        result.textContent = errorMessage;
+                        result.className = 'text-center text-sm py-2 error';
+                         // Re-enable button
+                        submitButton.disabled = false;
+                        submitButtonIconSpan.innerHTML = '<i class="fas fa-user-plus text-indigo-300 group-hover:text-indigo-200"></i>';
+                        submitButtonTextSpan.textContent = 'Kayıt Ol';
+                        return; // Stop execution if registration fails
+                    }
+
+                    // Registration successful, now try to log in automatically
+                    result.textContent = "Kayıt başarılı. Otomatik giriş yapılıyor...";
+                    result.className = 'text-center text-sm py-2 info';
+
+
+                    // 2. Automatic login to get token
+                    const tokenRes = await fetch('/api/token/', { // Using the original token endpoint
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // Add CSRF token header if needed
+                            // 'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            username: data.username,
+                            password: data.password // Use the original password
+                        })
+                    });
+
+                    const tokenData = await tokenRes.json();
+
+                    if (tokenRes.ok && tokenData.access && tokenData.refresh) {
+                        // 3. Save tokens (using original keys)
+                        localStorage.setItem('access', tokenData.access);
+                        localStorage.setItem('refresh', tokenData.refresh);
+
+                        result.textContent = "Kayıt başarılı! Giriş yapıldı. Ana sayfaya yönlendiriliyorsunuz...";
+                        result.className = 'text-center text-sm py-2 success';
+
+                        // 4. Redirect (using original destination)
+                        setTimeout(() => {
+                            window.location.href = "/"; // Redirect to root/homepage
+                        }, 2000);
+
+                    } else {
+                        // Handle token retrieval failure - user is registered but not logged in
+                        let tokenErrorMessage = "Kayıt başarılı ancak otomatik giriş yapılamadı.";
+                        if (tokenData && typeof tokenData === 'object') {
+                           tokenErrorMessage += " Hata: " + Object.values(tokenData).flat().join(' ');
+                        } else if (tokenData) {
+                           tokenErrorMessage += " Hata: " + tokenData;
+                        }
+                        result.textContent = tokenErrorMessage + " Lütfen giriş yapmayı deneyin.";
+                        result.className = 'text-center text-sm py-2 error';
+                         // Re-enable button but don't redirect
+                        submitButton.disabled = false;
+                        submitButtonIconSpan.innerHTML = '<i class="fas fa-user-plus text-indigo-300 group-hover:text-indigo-200"></i>';
+                        submitButtonTextSpan.textContent = 'Kayıt Ol';
+                    }
+
+                } catch (err) {
+                    // Handle network errors or other exceptions
+                    console.error("Registration/Login Error:", err); // Log error for debugging
+                    result.textContent = "Bir ağ hatası veya beklenmedik bir sorun oluştu. Lütfen tekrar deneyin.";
+                    result.className = 'text-center text-sm py-2 error';
+                     // Re-enable button
+                    submitButton.disabled = false;
+                    submitButtonIconSpan.innerHTML = '<i class="fas fa-user-plus text-indigo-300 group-hover:text-indigo-200"></i>';
+                    submitButtonTextSpan.textContent = 'Kayıt Ol';
+                }
+            });
+        } else {
+             console.error("Form elements could not be found. Script cannot attach listeners.");
+        }
+
+        // Helper function to get CSRF cookie (if needed, e.g., for Django)
+        /*
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        */
+
+    </script>
+</body>
+</html>

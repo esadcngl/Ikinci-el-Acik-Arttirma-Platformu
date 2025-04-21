@@ -1,6 +1,304 @@
-<h2>Giriş Yap</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Giriş Yap</button>
-</form>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap | Mezsat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .input-focus:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="flex items-center">
+                            <i class="fas fa-gavel text-indigo-600 text-2xl mr-2"></i>
+                            <span class="text-xl font-bold text-gray-900">Mezsat</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
+                    <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
+                    <div class="flex items-center space-x-4">
+                        <a href="/login" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Giriş Yap</a>
+                        <a href="/register" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                            <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+                        </a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex items-center md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Ana Sayfa</a>
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Nasıl Çalışır?</a>
+                <div class="pt-2 border-t">
+                    <a href="/login" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Giriş Yap</a>
+                    <a href="/register" class="block px-3 py-2 mt-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
+                        <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 fade-in">
+            <div class="text-center">
+                <i class="fas fa-gavel text-indigo-600 text-5xl mb-4"></i>
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                    Mezsat'a Giriş Yap
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Hesabınıza giriş yaparak açık artırmalara katılabilirsiniz
+                </p>
+            </div>
+            
+            <div class="mt-8 bg-white py-8 px-4 shadow rounded-lg sm:px-10 card-hover">
+                <form id="loginForm" class="space-y-6">
+                    <input type="hidden" name="remember" value="true">
+                    <div class="rounded-md shadow-sm space-y-4">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">E-posta Adresi</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-envelope text-gray-400"></i>
+                                </div>
+                                <input id="username" name="username" type="text" required 
+                                    class="py-2 pl-10 block w-full border border-gray-300 rounded-md input-focus focus:outline-none sm:text-sm"
+                                    placeholder="username">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-lock text-gray-400"></i>
+                                </div>
+                                <input id="password" name="password" type="password" autocomplete="current-password" required 
+                                    class="py-2 pl-10 block w-full border border-gray-300 rounded-md input-focus focus:outline-none sm:text-sm"
+                                    placeholder="••••••••">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hata mesajlarını gösterme alanı -->
+                    <div id="error" class="text-red-500 text-sm hidden"></div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input id="remember-me" name="remember-me" type="checkbox" 
+                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                                Beni hatırla
+                            </label>
+                        </div>
+
+                        <div class="text-sm">
+                            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
+                                Şifremi unuttum?
+                            </a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+                            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                <i class="fas fa-sign-in-alt text-indigo-300 group-hover:text-indigo-200"></i>
+                            </span>
+                            Giriş Yap
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Hesabınız yok mu? 
+                        <a href="/register" class="font-medium text-indigo-600 hover:text-indigo-500">
+                            Kayıt Ol
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Mezsat</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Hakkımızda</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Kariyer</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Basın</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Yardım</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Sıkça Sorulan Sorular</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Güvenlik</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">İletişim</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Kurallar</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Kullanım Koşulları</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Gizlilik Politikası</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white">Çerez Politikası</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Bizi Takip Edin</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-gray-300">Uygulamayı indirin:</p>
+                        <div class="flex space-x-2 mt-2">
+                            <a href="#" class="block"><img src="/api/placeholder/120/40" alt="App Store" class="h-10"></a>
+                            <a href="#" class="block"><img src="/api/placeholder/120/40" alt="Google Play" class="h-10"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-700 text-center">
+                <p class="text-gray-400">© 2023 Mezsat. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // JWT Form submission - Entegre edilen JWT kodları
+        const form = document.getElementById('loginForm');
+        const errorText = document.getElementById('error');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Hata mesajı bölümünü gizle ve temizle
+            errorText.classList.add('hidden');
+            errorText.textContent = '';
+            
+            const username = form.username.value;
+            const password = form.password.value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            try {
+                const response = await fetch('/api/token/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // ✅ Giriş başarılı – token'ları kaydet
+                    localStorage.setItem('access', data.access);
+                    localStorage.setItem('refresh', data.refresh);
+                    
+                    // Eğer "beni hatırla" seçiliyse, ekstra bilgi kaydet
+                    if (rememberMe) {
+                        localStorage.setItem('remember_user', username);
+                    } else {
+                        localStorage.removeItem('remember_user');
+                    }
+                    
+                    // 🔁 Anasayfaya yönlendir
+                    window.location.href = '/';
+                } else {
+                    // ❌ Hatalı giriş - hata mesajını göster
+                    errorText.textContent = data.detail || "Giriş işlemi başarısız oldu.";
+                    errorText.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Giriş hatası:', error);
+                errorText.textContent = "Sunucu bağlantısında bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+                errorText.classList.remove('hidden');
+            }
+        });
+
+        // Sayfa yüklendiğinde "beni hatırla" kontrolü
+        document.addEventListener('DOMContentLoaded', function() {
+            const rememberedUser = localStorage.getItem('remember_user');
+            if (rememberedUser) {
+                document.getElementById('username').value = rememberedUser;
+                document.getElementById('remember-me').checked = true;
+                // Kullanıcı adı dolu olduğu için şifre alanına odaklan
+                document.getElementById('password').focus();
+            }
+        });
+    </script>
+</body>
+</html>

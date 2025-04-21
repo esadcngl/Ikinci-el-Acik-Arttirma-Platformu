@@ -33,3 +33,4 @@ def user_logout(request):
 
 def home(request):
     return render(request, 'users/home.html')
+
