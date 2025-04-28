@@ -11,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status , serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from decimal import Decimal
+
 
 class BidCreateView(generics.CreateAPIView):
     serializer_class = BidSerializer
@@ -26,13 +28,22 @@ class BidCreateView(generics.CreateAPIView):
         if not auction.is_active:
             raise ValidationError("Bu ilan artık aktif değil. Teklif verilemez.")
 
-        amount = self.request.data.get('amount')
+        amount = Decimal(self.request.data.get('amount'))  # ❗️Decimal'e çevirdik
 
-        if auction.buy_now_price and float(amount) >= float(auction.buy_now_price):
+        user = self.request.user
+
+        if user.balance < amount:
+            raise ValidationError("Yetersiz bakiye. Teklif verilemiyor.")
+
+        user.balance -= amount
+        user.blocked_balance += amount
+        user.save()
+
+        if auction.buy_now_price and amount >= auction.buy_now_price:
             auction.status = 'pending_payment'
             auction.save()
 
-        serializer.save(auction=auction, user=self.request.user)
+        serializer.save(auction=auction, user=user)
 
 class BidListView(generics.ListAPIView):
     serializer_class = BidSerializer
@@ -45,36 +56,86 @@ class AcceptBidView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        bid = Bid.objects.get(pk=pk)
+        bid = Bid.objects.select_related('user', 'auction', 'auction__owner').get(pk=pk)
 
         # Sadece ilan sahibi teklifi kabul edebilir
         if bid.auction.owner != request.user:
             return Response({"detail": "Bu işlemi yapmaya yetkiniz yok."}, status=403)
 
+        if bid.status != "pending":
+            return Response({"detail": "Bu teklif zaten işleme alınmış."}, status=400)
+
         bid.status = "accepted"
         bid.save()
 
-        # İlanı da güncelle: ödeme bekleniyor moduna geçir
-        bid.auction.status = "pending_payment"
-        bid.auction.save()
+        # İlanı güncelle: artık satış aşamasında değil, doğrudan satıldı
+        auction = bid.auction
+        auction.status = "sold"
+        auction.is_active = False
+        auction.save()
 
-        return Response({"detail": "Teklif kabul edildi."}, status=200)
+        # Kullanıcının blocked_balance'ından düş ve ilan sahibinin balance'ına ekle
+        buyer = bid.user
+        seller = auction.owner
 
+        buyer.blocked_balance -= bid.amount
+        buyer.save()
+
+        seller.balance += bid.amount
+        seller.save()
+
+        return Response({"detail": "Teklif kabul edildi ve ödeme başarıyla gerçekleşti."}, status=200)
 
 class RejectBidView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        bid = Bid.objects.get(pk=pk)
+        bid = Bid.objects.select_related('user', 'auction', 'auction__owner').get(pk=pk)
 
         if bid.auction.owner != request.user:
             return Response({"detail": "Bu işlemi yapmaya yetkiniz yok."}, status=403)
 
+        if bid.status != "pending":
+            return Response({"detail": "Bu teklif zaten işleme alınmış."}, status=400)
+
         bid.status = "rejected"
         bid.save()
-        return Response({"detail": "Teklif reddedildi."}, status=200)
-    
 
+        # Teklif reddedildiği için blocked_balance'ı geri iade et
+        user = bid.user
+        user.blocked_balance -= bid.amount
+        user.balance += bid.amount
+        user.save()
+
+        return Response({"detail": "Teklif reddedildi ve bakiye iade edildi."}, status=200)
+    
+class CancelBidView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            bid = Bid.objects.select_related('user').get(pk=pk)
+        except Bid.DoesNotExist:
+            return Response({"detail": "Teklif bulunamadı."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Sadece teklif sahibi iptal edebilir
+        if bid.user != request.user:
+            return Response({"detail": "Bu teklifi iptal etmeye yetkiniz yok."}, status=status.HTTP_403_FORBIDDEN)
+
+        if bid.status != "pending":
+            return Response({"detail": "Bu teklif zaten işleme alınmış."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Teklifi iptal ediyoruz
+        bid.status = "cancelled"
+        bid.save()
+
+        # Kullanıcının blocked_balance'ı çözülüyor
+        user = bid.user
+        user.blocked_balance -= bid.amount
+        user.balance += bid.amount
+        user.save()
+
+        return Response({"detail": "Teklif iptal edildi ve bakiye geri yüklendi."}, status=status.HTTP_200_OK)
 class AuctionCreateView(generics.CreateAPIView):
     queryset = Auction.objects.all()
     serializer_class = AuctionSerializer
@@ -84,7 +145,7 @@ class AuctionCreateView(generics.CreateAPIView):
 class AuctionListView(generics.ListAPIView):
     serializer_class = AuctionSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['title', 'description']
+    search_fields = ['title', 'description','category__name']
     ordering_fields = ['created_at', 'starting_price', 'end_time']
     filterset_fields = {
         'starting_price': ['gte', 'lte'],

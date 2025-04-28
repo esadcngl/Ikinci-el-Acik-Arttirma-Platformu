@@ -29,4 +29,5 @@ urlpatterns = [
     path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
     path('auctions/<int:auction_id>/buy-now/', BuyNowView.as_view(), name='auction-buy-now'),
     path('auctions/<int:auction_id>/complete-payment/', CompletePaymentView.as_view(), name='complete-payment'),
+    path('auctions/bids/<int:pk>/cancel/', CancelBidView.as_view(), name='bid-cancel'),
 ]

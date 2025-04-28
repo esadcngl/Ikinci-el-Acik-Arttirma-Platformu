@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .serializers import RegisterSerializer,UserUpdateSerializer ,ProfileSerializer , UserPublicProfileSerializer
-
+from rest_framework import status
 User = get_user_model()
 
 # Kayıt (Register) API
@@ -39,3 +39,18 @@ class UserPublicProfileView(APIView):
 
         serializer = UserPublicProfileSerializer(user)
         return Response(serializer.data)
+
+class BalanceTopUpView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        amount = request.data.get('amount')
+
+        if not amount or float(amount) <= 0:
+            return Response({'detail': 'Geçerli bir miktar giriniz.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.user
+        user.balance += float(amount)
+        user.save()
+
+        return Response({'detail': 'Bakiye başarıyla yüklendi.', 'new_balance': user.balance})

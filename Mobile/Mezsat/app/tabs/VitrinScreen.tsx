@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
+import AuctionCard from '../auctioncard';
 
 const VitrinScreen = () => {
   const [username, setUsername] = useState('');
@@ -114,26 +115,15 @@ const VitrinScreen = () => {
   };
 
   const renderItem = ({ item }: any) => (
-    <View style={styles.card}>
-      <Image
-        source={{ uri: item.image || 'https://via.placeholder.com/300x200' }}
-        style={styles.image}
-      />
-      <TouchableOpacity style={styles.heartIcon} onPress={() => toggleFavorite(item.id)}>
-        <FontAwesome
-          name={item.is_favorite ? 'heart' : 'heart-o'}
-          size={20}
-          color="red"
-        />
-      </TouchableOpacity>
-      <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.date}>Bitiş: {new Date(item.end_time).toLocaleDateString('tr-TR')}</Text>
-        <Text style={styles.price}>
-          {parseFloat(item.starting_price).toLocaleString()} ₺
-        </Text>
-      </View>
-    </View>
+    <AuctionCard
+      id={item.id}
+      image={item.image || 'https://via.placeholder.com/300x200'}
+      title={item.title}
+      endTime={new Date(item.end_time).toLocaleDateString('tr-TR')}
+      price={parseFloat(item.starting_price)}
+      isFavorite={item.is_favorite}
+      onToggleFavorite={() => toggleFavorite(item.id)}
+    />
   );
 
   return (

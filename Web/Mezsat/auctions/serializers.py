@@ -2,9 +2,10 @@ from rest_framework import serializers
 from .models import Bid , Auction ,Comment , Favorite , Category
 
 class BidSerializer(serializers.ModelSerializer):
+    user_username = serializers.CharField(source='user.username', read_only=True)
     class Meta:
         model = Bid
-        fields = ['id', 'auction', 'user', 'amount', 'status', 'created_at']
+        fields = ['id', 'auction', 'user', 'user_username','amount', 'status', 'created_at']
         read_only_fields = ['id', 'auction','status', 'created_at', 'user']
 
     def create(self, validated_data):
@@ -14,16 +15,16 @@ class BidSerializer(serializers.ModelSerializer):
 
 class AuctionSerializer(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField()
-
+    owner_username = serializers.CharField(source='owner.username', read_only=True)
     class Meta:
         model = Auction
         fields = [
             'id', 'title', 'description', 'image',
             'starting_price', 'buy_now_price', 'end_time',
             'status', 'is_active', 'created_at',
-            'category', 'category_name'
+            'category', 'category_name','owner_username'
         ]
-        read_only_fields = ['id', 'status', 'is_active', 'created_at', 'category_name']
+        read_only_fields = ['id', 'status', 'is_active', 'created_at', 'category_name','owner_username']
 
     def get_category_name(self, obj):
         return obj.category.name if obj.category else None

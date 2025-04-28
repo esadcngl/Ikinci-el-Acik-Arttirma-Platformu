@@ -1,28 +1,38 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 interface AuctionCardProps {
+  id: number; // ✅ id ekledik çünkü router ile geçeceğiz
   image: string;
   title: string;
   endTime: string;
   price: number;
   isFavorite: boolean;
-  onPress: () => void;
   onToggleFavorite: () => void;
 }
 
 const AuctionCard: React.FC<AuctionCardProps> = ({
+  id,
   image,
   title,
   endTime,
   price,
   isFavorite,
-  onPress,
   onToggleFavorite
 }) => {
+  const router = useRouter(); // 📌 Router'ı aldık
+
+  const handlePress = () => {
+    router.push({
+      pathname: '/auction/[id]',
+      params: { id: id }
+    }); // 💥 İlan detayına git
+  };
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
       <Image source={{ uri: image }} style={styles.image} />
       <TouchableOpacity style={styles.favoriteIcon} onPress={onToggleFavorite}>
         <FontAwesome name={isFavorite ? 'heart' : 'heart-o'} size={20} color="red" />
@@ -60,6 +70,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 5,
     elevation: 2,
+    zIndex: 1, // Favori ikon üstte kalması için
   },
   info: {
     padding: 10,

@@ -1,5 +1,5 @@
 from django.urls import path
-from .api import RegisterView, ProfileView , ProfileUpdateView , UserPublicProfileView
+from .api import RegisterView, ProfileView , ProfileUpdateView , UserPublicProfileView ,BalanceTopUpView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/update/', ProfileUpdateView.as_view(), name='api-profile-update'),
     path('users/<int:user_id>/profile/', UserPublicProfileView.as_view(), name='user-public-profile'),
+    path('balance/top-up/', BalanceTopUpView.as_view(), name='balance-top-up'),
 ]
