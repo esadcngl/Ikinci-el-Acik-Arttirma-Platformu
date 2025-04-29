@@ -3,6 +3,8 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
+from auctions.models import Auction , Bid , Favorite
 
 def user_register(request):
     if request.method == 'POST':
@@ -33,4 +35,8 @@ def user_logout(request):
 
 def home(request):
     return render(request, 'users/home.html')
+
+
+def profile_view(request):
+    return render(request, 'users/profile.html')
 

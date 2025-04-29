@@ -19,6 +19,8 @@ from django.urls import path , include
 from users.views import home
 from django.conf import settings
 from django.conf.urls.static import static
+from auctions import views as auction_views
+
 
 urlpatterns = [
     path('', home, name='home'),
@@ -27,6 +29,7 @@ urlpatterns = [
     path('', include('users.urls')),    
     path('api/', include('users.api_urls')),
     path('api/', include('auctions.api_urls')),
+    path('auctions/<int:pk>/', auction_views.auction_detail_view, name='auction-detail'), 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

@@ -29,6 +29,10 @@ class AuctionSerializer(serializers.ModelSerializer):
     def get_category_name(self, obj):
         return obj.category.name if obj.category else None
 
+    def get_current_bid(self, obj):
+        last_bid = obj.bids.order_by('-amount', '-created_at').first()
+        return last_bid.amount if last_bid else None
+
     def create(self, validated_data):
         validated_data['owner'] = self.context['request'].user
         return super().create(validated_data)

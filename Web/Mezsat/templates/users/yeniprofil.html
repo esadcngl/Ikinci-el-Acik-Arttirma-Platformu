@@ -109,16 +109,16 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="/" class="flex items-center">
+                        <a href="index.html" class="flex items-center">
                             <i class="fas fa-gavel text-indigo-600 text-2xl mr-2"></i>
                             <span class="text-xl font-bold text-gray-900">Mezsat</span>
                         </a>
                     </div>
                 </div>
                 <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-                    <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
-                    <a href="/#catogery" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
-                    <a href="/#how-it-works" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
+                    <a href="index.html" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
                     <div class="flex items-center space-x-4">
                         <div class="relative group">
                             <button class="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
@@ -187,7 +187,16 @@
                 </a>
                 
                 <!-- Rating -->
-                
+                <div class="mt-6 text-center">
+                    <div class="flex justify-center mb-1">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">4.8 (128 değerlendirme)</span>
+                </div>
             </div>
         </div>
 
@@ -199,15 +208,17 @@
                 <div class="border-b border-gray-200 mb-8">
                     <nav class="-mb-px flex space-x-8 overflow-x-auto">
                         <a href="#" id="auctions-tab" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                            <i class="fas fa-gavel mr-2"></i> Aktif İlanlar 
+                            <i class="fas fa-gavel mr-2"></i> Aktif İlanlar (12)
                         </a>
                         <a href="#" id="favorites-tab" class="tab-active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                            <i class="fas fa-heart mr-2"></i> Favoriler 
+                            <i class="fas fa-heart mr-2"></i> Favoriler (8)
                         </a>
                         <a href="#" id="completed-tab" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                            <i class="fas fa-check-circle mr-2"></i> Tamamlananlar
+                            <i class="fas fa-check-circle mr-2"></i> Tamamlananlar (24)
                         </a>
-                    
+                        <a href="#" id="reviews-tab" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            <i class="fas fa-star mr-2"></i> Değerlendirmeler (128)
+                        </a>
                         <a href="#" id="settings-tab" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
                             <i class="fas fa-cog mr-2"></i> Ayarlar
                         </a>
@@ -341,7 +352,22 @@
                     </div>
 
                     <!-- Pagination -->
-                    
+                    <div class="mt-8 flex justify-center">
+                        <nav class="inline-flex rounded-md shadow">
+                            <a href="#" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-indigo-600 hover:bg-gray-50">
+                                1
+                            </a>
+                            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                2
+                            </a>
+                            <a href="#" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </nav>
+                    </div>
                 </div>
 
                 <!-- Active Auctions Tab Content (Hidden by default) -->
@@ -355,7 +381,9 @@
                                     <button class="p-2 bg-white rounded-full shadow-md text-gray-700 hover:text-indigo-600 transition">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    
+                                    <button class="p-2 bg-white rounded-full shadow-md text-gray-700 hover:text-red-500 transition">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="p-4">
@@ -418,11 +446,111 @@
                     </div>
                 </div>
 
-               
-                   
+                <!-- Reviews Tab Content (Hidden by default) -->
+                <div id="reviews-content" class="hidden fade-in">
+                    <div class="bg-white shadow rounded-lg p-6 mb-6">
+                        <div class="flex flex-col md:flex-row items-center md:items-start">
+                            <div class="text-center md:text-left md:mr-8 mb-4 md:mb-0">
+                                <div class="text-5xl font-bold text-indigo-600">4.8</div>
+                                <div class="flex justify-center md:justify-start mt-2">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">128 değerlendirme</div>
+                            </div>
+                            <div class="flex-1 w-full">
+                                <div class="flex items-center mb-2">
+                                    <span class="w-16 text-sm font-medium text-gray-600">5 yıldız</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mx-2">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <span class="w-8 text-sm text-gray-600">85%</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <span class="w-16 text-sm font-medium text-gray-600">4 yıldız</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mx-2">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 10%"></div>
+                                    </div>
+                                    <span class="w-8 text-sm text-gray-600">10%</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <span class="w-16 text-sm font-medium text-gray-600">3 yıldız</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mx-2">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 3%"></div>
+                                    </div>
+                                    <span class="w-8 text-sm text-gray-600">3%</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <span class="w-16 text-sm font-medium text-gray-600">2 yıldız</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mx-2">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 1%"></div>
+                                    </div>
+                                    <span class="w-8 text-sm text-gray-600">1%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-16 text-sm font-medium text-gray-600">1 yıldız</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mx-2">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 1%"></div>
+                                    </div>
+                                    <span class="w-8 text-sm text-gray-600">1%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review List -->
+                    <div class="space-y-6">
+                        <!-- Review 1 -->
+                        <div class="bg-white shadow rounded-lg p-6">
+                            <div class="flex items-start">
+                                <img class="h-10 w-10 rounded-full mr-4" src="https://via.placeholder.com/40" alt="User">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium">Ahmet Yılmaz</h4>
+                                            <div class="flex mt-1">
+                                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm text-gray-500">2 hafta önce</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <p class="text-gray-700">Ürün tam olarak açıklandığı gibiydi. Kargo hızlı ve paketleme çok iyiydi. Teşekkürler!</p>
+                                    </div>
+                                    <div class="mt-4 flex items-center text-sm text-gray-500">
+                                        <span>Satın alınan ürün:</span>
+                                        <a href="#" class="ml-2 text-indigo-600 hover:underline">Apple MacBook Pro 2021 M1</a>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Pagination -->
-                    
+                    <div class="mt-8 flex justify-center">
+                        <nav class="inline-flex rounded-md shadow">
+                            <a href="#" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-indigo-600 hover:bg-gray-50">
+                                1
+                            </a>
+                            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                2
+                            </a>
+                            <a href="#" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </nav>
+                    </div>
                 </div>
 
                 <!-- Settings Tab Content (Hidden by default) -->
@@ -556,6 +684,10 @@
             switchTab('completed');
         });
         
+        document.getElementById('reviews-tab').addEventListener('click', function(e) {
+            e.preventDefault();
+            switchTab('reviews');
+        });
         
         document.getElementById('settings-tab').addEventListener('click', function(e) {
             e.preventDefault();
@@ -567,7 +699,7 @@
             document.getElementById('auctions-content').classList.add('hidden');
             document.getElementById('favorites-content').classList.add('hidden');
             document.getElementById('completed-content').classList.add('hidden');
-           
+            document.getElementById('reviews-content').classList.add('hidden');
             document.getElementById('settings-content').classList.add('hidden');
             
             // Remove active class from all tabs
@@ -577,6 +709,8 @@
             document.getElementById('favorites-tab').classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             document.getElementById('completed-tab').classList.remove('tab-active');
             document.getElementById('completed-tab').classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+            document.getElementById('reviews-tab').classList.remove('tab-active');
+            document.getElementById('reviews-tab').classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             document.getElementById('settings-tab').classList.remove('tab-active');
             document.getElementById('settings-tab').classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             
@@ -593,26 +727,19 @@
         });
         
         // Logout functionality
-        const logoutBtn = document.getElementById('logout-btn');
-            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
-            
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    localStorage.removeItem('access');
-                    localStorage.removeItem('refresh');
-                    window.location.href = '/';
-                });
-            }
-            
-            if (mobileLogoutBtn) {
-                mobileLogoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    localStorage.removeItem('access');
-                    localStorage.removeItem('refresh');
-                    window.location.href = '/';
-                });
-            }
+        document.getElementById('logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = 'login.html';
+        });
+        
+        document.getElementById('mobile-logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = 'login.html';
+        });
         
         // Avatar upload preview
         function readURL(input) {
@@ -673,168 +800,6 @@
                 }, 300);
             });
         });
-        async function loadActiveAuctions() {
-    const token = localStorage.getItem('access');
-    const response = await fetch('http://127.0.0.1:8000/api/my-auctions/', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    });
-
-    if (!response.ok) {
-        console.error('İlanlar alınamadı.');
-        return;
-    }
-
-    const auctions = await response.json();
-
-    // 1. Aktif İlanlar sekmesindeki (X) sayısını güncelle
-    const auctionsTab = document.getElementById('auctions-tab');
-    auctionsTab.innerHTML = `<i class="fas fa-gavel mr-2"></i> Aktif İlanlar (${auctions.length})`;
-
-    // 2. İlanları listele
-    const auctionsContainer = document.getElementById('auctions-content');
-    auctionsContainer.innerHTML = `
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
-    `;
-
-    const gridContainer = auctionsContainer.querySelector('div.grid');
-
-    auctions.forEach(auction => {
-        const now = new Date();
-        const endTime = new Date(auction.end_time);
-        const timeDiff = endTime - now;
-        const daysLeft = Math.max(Math.ceil(timeDiff / (1000 * 60 * 60 * 24)), 0);
-
-        const card = `
-        <div class="card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300">
-            <div class="relative pb-2/3 h-48">
-                <img class="absolute h-full w-full object-cover" src="${auction.image}" alt="${auction.title}">
-                <div class="absolute top-2 right-2 flex space-x-2">
-                    <a href="/auctions/${auction.id}/" class="p-2 bg-white rounded-full shadow-md text-gray-700 hover:text-indigo-600 transition">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                  <button class="p-2 bg-white rounded-full shadow-md text-gray-700 hover:text-red-500 transition delete-auction-btn" data-id="${auction.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-                </div>
-            </div>
-            <div class="p-4">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-1">${auction.title}</h3>
-                        <p class="text-sm text-gray-500">${auction.category_name}</p>
-                    </div>
-                    <span class="text-lg font-bold text-indigo-600">${parseFloat(auction.starting_price).toLocaleString('tr-TR')} ₺</span>
-                </div>
-                <div class="mt-4">
-                    <div class="flex items-center mb-2">
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 50%"></div>
-                        </div>
-                        <span class="ml-2 text-sm text-gray-600">${daysLeft} gün kaldı</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <div class="text-sm text-gray-500">
-                            Şimdi Satın Al: ${parseFloat(auction.buy_now_price).toLocaleString('tr-TR')} ₺
-                        </div>
-                        <a href="/auctions/${auction.id}/" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
-                            Detay
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-        gridContainer.innerHTML += card;
-    });
-}
-document.addEventListener('click', async function(e) {
-    if (e.target.closest('.delete-auction-btn')) {
-        e.preventDefault();
-        const confirmed = confirm("Bu ilanı silmek istediğinize emin misiniz?");
-        if (!confirmed) return;
-
-        const auctionId = e.target.closest('.delete-auction-btn').getAttribute('data-id');
-        const token = localStorage.getItem('access');
-
-        const res = await fetch(`http://127.0.0.1:8000/api/auctions/${auctionId}/delete/`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (res.ok) {
-            alert("İlan silindi.");
-            // DOM'dan da kaldıralım
-            e.target.closest('.card-hover').remove();
-
-            // Tab üzerindeki sayaç da güncellensin
-            const tab = document.getElementById('auctions-tab');
-            const currentCount = parseInt(tab.textContent.match(/\((\d+)\)/)[1]);
-            tab.innerHTML = `<i class="fas fa-gavel mr-2"></i> Aktif İlanlar (${currentCount - 1})`;
-        } else {
-            const data = await res.json();
-            alert("Silinemedi: " + (data.detail || "Bilinmeyen bir hata."));
-        }
-    }
-});
-// Sayfa yüklenince aktif ilanları çek
-window.addEventListener('load', loadActiveAuctions);
-    window.addEventListener('DOMContentLoaded', async function () {
-    const token = localStorage.getItem('access');
-    if (!token) {
-        window.location.href = '/login';
-        return;
-    }
-
-    try {
-        const response = await fetch('http://127.0.0.1:8000/api/profile/', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) throw new Error('Profil verisi alınamadı');
-
-        const data = await response.json();
-
-        // Profil fotoğrafı
-        const avatarDiv = document.querySelector('.avatar-preview > div');
-        if (avatarDiv && data.profile_image_url) {
-            avatarDiv.style.backgroundImage = `url(${data.profile_image_url})`;
-        }
-
-        // Sidebar isim alanı
-        const nameElem = document.querySelector('h1.text-xl');
-        if (nameElem) nameElem.innerText = data.username;
-
-        // Üyelik tarihi
-        const joinedElem = document.querySelector('p.text-gray-500.text-sm');
-        if (joinedElem) {
-            const joinedDate = new Date(data.date_joined).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
-            joinedElem.innerText = `Üye since: ${joinedDate}`;
-        }
-
-        // Navbar kullanıcı adı (tüm span'larda geçebilir)
-        document.querySelectorAll('span').forEach(span => {
-            if (span.textContent.trim() === 'john_doe') {
-                span.textContent = data.username;
-            }
-        });
-
-        // Ayarlar alanı
-        document.getElementById('email').value = data.email || '';
-        document.getElementById('phone').value = data.phone || '';
-
-    } catch (err) {
-        console.error(err);
-        window.location.href = '/';
-    }
-});
     </script>
 </body>
 </html>

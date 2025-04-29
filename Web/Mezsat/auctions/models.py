@@ -31,7 +31,9 @@ class Auction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-
+    @property
+    def current_bid(self):
+        return self.bids.order_by('-amount', '-created_at').first()
     def __str__(self):
         return self.title
 

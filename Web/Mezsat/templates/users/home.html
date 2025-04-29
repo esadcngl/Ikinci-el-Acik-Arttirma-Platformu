@@ -45,7 +45,7 @@
                 </div>
                 <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
                     <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
-                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="#category" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
                     <a href="#how-it-works" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
                     <div id="auth-buttons">
                         <!-- Will be filled by JavaScript -->
@@ -63,7 +63,7 @@
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Ana Sayfa</a>
-                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
+                <a href="#category" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
                 <a href="#how-it-works" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Nasıl Çalışır?</a>
                 <div id="mobile-auth-buttons" class="pt-2">
                     <!-- Will be filled by JavaScript -->
@@ -87,7 +87,7 @@
                         <i class="fas fa-search mr-2"></i> Hemen Göz At
                     </a>
                     <a href="#" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 bg-opacity-60 hover:bg-opacity-70 transition">
-                        <i class="fas fa-plus mr-2"></i> Satış Yap
+                        <i class="fas fa-plus mr-2"></i> İlan Oluştur
                     </a>
                 </div>
             </div>
@@ -96,7 +96,7 @@
 
     <!-- Categories Section -->
     <div class="max-w-7xl mx-auto py-12 px-4 sm:py-16 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">Kategoriler</h2>
+        <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12" id="category">Kategoriler</h2>
         <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             <!-- Category items will be added by JavaScript -->
         </div>
@@ -335,7 +335,7 @@
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profilim</a>
+                            <a href="profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profilim</a>
                             <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favorilerim</a>
                             <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">İlanlarım</a>
                             <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Çıkış Yap</a>
@@ -348,7 +348,7 @@
             `;
 
             const mobileContent = `
-                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Profilim</a>
+                <a href="profile/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Profilim</a>
                 <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Favorilerim</a>
                 <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">İlanlarım</a>
                 <a href="#" id="mobile-logout-btn" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Çıkış Yap</a>
@@ -406,7 +406,6 @@
             });
         }
         
-        // Render auctions
         async function renderAuctions() {
   const container = document.getElementById('auctions-container');
   container.innerHTML = ''; // Önce temizle
@@ -414,14 +413,30 @@
   try {
     const response = await fetch('/api/auctions/');
     const data = await response.json();
+    const token = localStorage.getItem('access'); // Giriş var mı diye bak
 
     data.forEach(auction => {
+      const now = new Date();
+      const endTime = new Date(auction.end_time);
+      const timeLeft = Math.max(0, Math.ceil((endTime - now) / (1000 * 60 * 60 * 24)));
+
       const auctionElement = document.createElement('div');
-      auctionElement.className = 'card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300';
+      auctionElement.className = 'card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300 relative';
+
+      // Kalp ikonu sadece giriş yapmışsa gösterilecek
+      let favoriteButtonHTML = '';
+      if (token) {
+        favoriteButtonHTML = `
+          <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition favorite-btn" data-id="${auction.id}" data-favorited="${auction.is_favorited}">
+            <i class="${auction.is_favorited ? 'fas' : 'far'} fa-heart text-lg"></i>
+          </button>
+        `;
+      }
 
       auctionElement.innerHTML = `
         <div class="relative pb-2/3 h-48">
           <img class="absolute h-full w-full object-cover" src="${auction.image || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${auction.title}">
+          ${favoriteButtonHTML}
         </div>
         <div class="p-4">
           <div class="flex justify-between items-start">
@@ -433,21 +448,71 @@
           </div>
           <div class="mt-4 flex justify-between items-center">
             <span class="text-sm text-gray-500">Bitiş: ${new Date(auction.end_time).toLocaleDateString('tr-TR')}</span>
-            <a href="#" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
-              Detayları Gör
+            <a href="/auctions/${auction.id}/" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
+              Detay
             </a>
           </div>
         </div>
       `;
+
       container.appendChild(auctionElement);
     });
+
+    setupFavoriteButtons(); // Butonlara tıklama eventi vereceğiz
 
   } catch (error) {
     console.error("İlanlar alınamadı:", error);
     container.innerHTML = `<p class="text-red-500">İlanlar yüklenemedi.</p>`;
   }
 }
-        
+
+function setupFavoriteButtons() {
+  const favoriteButtons = document.querySelectorAll('.favorite-btn');
+
+  favoriteButtons.forEach(button => {
+    button.addEventListener('click', async function(e) {
+      e.preventDefault();
+      const auctionId = this.getAttribute('data-id');
+      let isFavorited = this.getAttribute('data-favorited') === 'true';
+      const token = localStorage.getItem('access');
+
+      if (!token) {
+        alert('Favorilere eklemek için giriş yapmalısınız!');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/auctions/${auctionId}/favorite/`, {
+          method: isFavorited ? 'DELETE' : 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Favori işlemi başarısız');
+        }
+
+        // Başarılı olursa kalbi değiştir
+        const heartIcon = this.querySelector('i');
+        if (isFavorited) {
+          heartIcon.classList.remove('fas');
+          heartIcon.classList.add('far');
+        } else {
+          heartIcon.classList.remove('far');
+          heartIcon.classList.add('fas');
+        }
+
+        // Güncelle
+        isFavorited = !isFavorited;
+        this.setAttribute('data-favorited', isFavorited);
+
+      } catch (error) {
+        console.error('Favori işleminde hata:', error);
+      }
+    });
+  });
+}
         // Render favorites (if logged in)
         async function renderFavorites() {
   const container = document.getElementById('favorites-container');
