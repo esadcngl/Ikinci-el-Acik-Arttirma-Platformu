@@ -76,6 +76,8 @@ virtualenv/
 db.sqlite3  # Eğer geliştirme için SQLite kullanıyorsanız
 /media/     # Kullanıcı tarafından yüklenen medya dosyaları (settings.MEDIA_ROOT)
 /staticfiles/ # collectstatic tarafından toplanan statik dosyalar (settings.STATIC_ROOT)
+/Web/Mezsat/media/profile_images/
+/Web/Mezsat/media/user/
 
 # Hassas bilgiler içeren dosyalar
 .env        # Ortam değişkenlerini saklayan dosya

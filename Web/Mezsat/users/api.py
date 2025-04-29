@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RegisterSerializer,UserUpdateSerializer ,ProfileSerializer , UserPublicProfileSerializer
+from .serializers import RegisterSerializer, UserUpdateSerializer, ProfileSerializer, UserPublicProfileSerializer, UserProfileSerializer
 from rest_framework import status
 User = get_user_model()
 
@@ -19,7 +19,7 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = ProfileSerializer(request.user)
+        serializer = UserProfileSerializer(request.user)
         return Response(serializer.data)
 
 class ProfileUpdateView(generics.RetrieveUpdateAPIView):

@@ -71,3 +71,15 @@ class UserPublicProfileSerializer(serializers.ModelSerializer):
     def get_auctions(self, obj):
         queryset = Auction.objects.filter(owner=obj, is_active=True)
         return AuctionMiniSerializer(queryset, many=True).data
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    profile_image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'phone', 'profile_image_url', 'date_joined')
+
+    def get_profile_image_url(self, obj):
+        if obj.profile_image:
+            return obj.profile_image.url
+        return '/media/user/user_default.png'
