@@ -41,7 +41,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-50 font-sans"  data-owner="{{ auction.owner.username }}">
     <!-- Navbar -->
     {# Navbar içeriği statik kalabilir veya kullanıcı durumuna göre dinamik hale getirilebilir #}
     <nav class="bg-white shadow-lg sticky top-0 z-50">
@@ -51,7 +51,7 @@
                     <div class="flex-shrink-0 flex items-center">
                         <a href="/" class="flex items-center">
                             <i class="fas fa-gavel text-indigo-600 text-2xl mr-2"></i>
-                            <span class="text-xl font-bold text-gray-900">Mezsat</span>
+                            <span class="text-xl font-bold text-gray-900">Mezsat </span>
                         </a>
                     </div>
                 </div>
@@ -59,26 +59,12 @@
                     <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
                     <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
                     <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
-                    <div class="flex items-center space-x-4">
-                        <div class="relative group">
-                            <button class="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
-                                <span>john_doe</span>
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
-                                <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profilim</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favorilerim</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">İlanlarım</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Çıkış Yap</a>
-                            </div>
-                        </div>
-                        <a href="#" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-                            <i class="fas fa-plus mr-1"></i> İlan Ver
-                        </a>
+                    <div id="auth-buttons">
+                        <!-- Will be filled by JavaScript -->
                     </div>
                 </div>
                 <div class="-mr-2 flex items-center md:hidden">
-                    <button class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 focus:outline-none">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 focus:outline-none">
                         <i class="fas fa-bars"></i>
                     </button>
                 </div>
@@ -142,12 +128,15 @@
                             <div class="flex justify-between text-sm text-gray-600 mb-1">
                                 <span>Kalan süre</span>
                                 {# Kalan süreyi dinamik olarak göster (timeuntil filtresi veya özel bir context değişkeni ile) #}
-                                <span> {{ time_left }} gün</span>
-                                <span>{{ auction.end_date|timeuntil }}</span> {# Veya daha detaylı formatlama gerekebilir #}
+                                <div class="flex gap-2">
+                                    <span> {{ time_left }} gün</span>
+                                    <span>{{ auction.end_date|timeuntil }}</span> {# Veya daha detaylı formatlama gerekebilir #}
+
+                                </div>
                             </div>
                             <div class="progress-bar">
                                 {# İlerleme çubuğu dinamik olarak hesaplanabilir #}
-                                <div class="progress-value" style="width: 75%"></div> {# Genişlik dinamik olmalı #}
+                                <div class="progress-value"style="width: {{ progress_percent|default:"0"|floatformat:0 }}%;"></div> {# Genişlik dinamik olmalı #}
                             </div>
                         </div>
 
@@ -166,16 +155,26 @@
                     </div>
 
                     <!-- Bid Form -->
-                    {# Teklif formu işlevselliği ayrı bir view/form ile yönetilmeli #}
-                    <div class="bg-gray-50 p-4 rounded-lg">
+                    {% if auction.status != "sold" and request.user != auction.owner %}
+                    <div id="bid-form-container" class="bg-gray-50 p-4 rounded-lg hidden">
                         <h3 class="text-lg font-medium mb-4">Teklif Ver</h3>
-                        <div class="flex space-x-2">
-                            <input id="bid-amount-input" type="number" placeholder="Teklif miktarı" class="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <button id="bid-submit-button" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-                                Gönder
-                            </button>
-                        </div>
+                        <form id="bid-form">
+                            <div class="flex space-x-2">
+                                <input name="amount" id="bid-amount" type="number" placeholder="Teklif miktarı"
+                                    class="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                                    Gönder
+                                </button>
+                            </div>
+                        </form>
                     </div>
+                    {% endif %}
+<!-- Giriş uyarısı -->
+<div id="login-warning" class="bg-yellow-100 p-4 rounded-lg text-center text-yellow-800 hidden">
+    Teklif verebilmek için <a href="/login" class="text-indigo-600 underline">giriş yapın</a>.
+</div>
+
                 </div>
             </div>
 
@@ -204,21 +203,46 @@
                         <h2 class="text-xl font-semibold mb-4">Teklif Geçmişi</h2>
                         <div class="space-y-4">
                             {# Teklifleri döngü ile listele #}
-                            {% for bid in auction.bids.all %} {# bids ilişkili model yöneticisi varsayıldı #}
-                            <div class="flex items-start p-4 bg-gray-50 rounded-lg">
-                                {# Kullanıcı profil resmi eklenebilir #}
-                                {# <img src="{{ bid.user.profile_image.url }}" alt="{{ bid.user.username }}" class="h-10 w-10 rounded-full mr-4"> #}
-                                <div class="flex-1">
-                                    <div class="flex justify-between">
-                                        <h4 class="font-medium">{{ bid.user.username }}</h4> {# user ilişkisi varsayıldı #}
-                                        <span class="text-sm text-gray-500">{{ bid.created_at|timesince }} önce</span> {# timestamp alanı varsayıldı #}
+                            {% for bid in auction.bids.all %}
+                            
+                                <div class="flex items-start p-4 bg-gray-50 rounded-lg" data-bid-id="{{ bid.id }}" data-status="{{ bid.status }}">
+                                    <div class="flex-1">
+                                        <div class="flex justify-between">
+                                            <h4 class="font-medium">{{ bid.user.username }}</h4>
+                                            <span class="text-sm text-gray-500">{{ bid.created_at|timesince }} önce</span>
+                                        </div>
+                                        <p class="text-2xl font-bold text-indigo-600 mt-1">{{ bid.amount }} ₺</p>
+                        
+                                       <div class="mt-2">
+    {% if bid.status == 'rejected' %}
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+            Reddedildi
+        </span>
+    {% elif bid.status == 'accepted' %}
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+            Kabul Edildi
+        </span>
+    {% elif bid.status == 'cancelled' %}
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+            İptal Edildi
+        </span>
+    {% elif bid.status == 'pending' %}
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+            Beklemede
+        </span>
+    {% endif %}
+</div>
+{% if current_user == bid.user.username and bid.status == 'pending' %}
+    <div class="mt-2">
+        <button type="button" class="px-3 py-1 text-sm bg-yellow-500 text-white rounded cancel-bid-btn" data-id="{{ bid.id }}">Teklifi İptal Et</button>
+    </div>
+{% endif %}
                                     </div>
-                                    <p class="text-2xl font-bold text-indigo-600 mt-1">{{ bid.amount }} ₺</p> {# amount alanı varsayıldı #}
                                 </div>
-                            </div>
-                            {% empty %}
+                           
+                        {% empty %}
                             <p class="text-gray-500">Henüz teklif yapılmamış.</p>
-                            {% endfor %}
+                        {% endfor %}
                         </div>
                     </div>
 
@@ -228,16 +252,19 @@
 
                         <!-- Comment Form -->
                         {# Yorum formu işlevselliği ayrı bir view/form ile yönetilmeli #}
+                        {% if auction.is_active and request.user.is_authenticated %}
                         <div class="mb-8 bg-gray-50 p-4 rounded-lg">
                             <h3 class="text-lg font-medium mb-4">Yorum Yap</h3>
-                            <textarea rows="3" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Yorumunuzu buraya yazın..."></textarea>
+                            <textarea rows="3" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Yorumunuzu buraya yazın..." id="comment-text" ></textarea>
                             <div class="flex justify-end mt-3">
-                                <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                                <button id="submit-comment" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
                                     Gönder
                                 </button>
                             </div>
                         </div>
-
+                        {% else %}
+                        <div class="bg-yellow-100 p-4 rounded mb-4">Yorum yapabilmek için <a href="/login" class="underline text-indigo-600">giriş yapın</a>.</div>
+                        {% endif %}
                         <!-- Comments List -->
                         <div class="space-y-6">
                             {# Yorumları döngü ile listele #}
@@ -338,6 +365,8 @@
     </footer>
 
     <script>
+        const token = localStorage.getItem('access');
+        const isLoggedIn = !!token;
         // Tab switching logic
         const descriptionTab = document.getElementById('description-tab');
         const bidsTab = document.getElementById('bids-tab');
@@ -345,10 +374,119 @@
         const descriptionContent = document.getElementById('description-content');
         const bidsContent = document.getElementById('bids-content');
         const commentsContent = document.getElementById('comments-content');
-
+        const currentUsername = localStorage.getItem("username");
         const tabs = [descriptionTab, bidsTab, commentsTab];
         const contents = [descriptionContent, bidsContent, commentsContent];
 
+        document.addEventListener('DOMContentLoaded', function() {
+    renderAuthButtons();
+    setupLogout();
+});
+        async function renderAuthButtons() {
+                const authButtonsContainer = document.getElementById('auth-buttons');
+                // const mobileAuthButtonsContainer = document.getElementById('mobile-auth-buttons');
+                const token = localStorage.getItem('access');
+
+                if (token) {
+                    try {
+                        const response = await fetch('/api/profile/', {
+                            headers: {
+                                'Authorization': 'Bearer ' + token
+                            }
+                        });
+
+                        if (!response.ok) throw new Error("Kullanıcı bilgileri alınamadı");
+
+                        const user = await response.json(); // Gerçek kullanıcı
+
+                        const desktopContent = `
+                            <div class="flex items-center space-x-4">
+                                <div class="relative group">
+                                    <button class="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
+                                        <span>${user.username}</span>
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </button>                                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
+                                        <a href="profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profilim</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favorilerim</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">İlanlarım</a>
+                                        <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Çıkış Yap</a>
+                                    </div>
+                                </div>
+                                <a href="#" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                                    <i class="fas fa-plus mr-1"></i> İlan Ver
+                                </a>
+                            </div>
+                        `;
+
+                        // const mobileContent = `
+                        //     <a href="profile/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Profilim</a>
+                        //     <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Favorilerim</a>
+                        //     <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">İlanlarım</a>
+                        //     <a href="#" id="mobile-logout-btn" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Çıkış Yap</a>
+                        //     <a href="#" class="block px-3 py-2 mt-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
+                        //         <i class="fas fa-plus mr-1"></i> İlan Ver
+                        //     </a>
+                        // `;
+
+                        authButtonsContainer.innerHTML = desktopContent;
+                        // mobileAuthButtonsContainer.innerHTML = mobileContent;
+
+                        // Favoriler kısmını göster
+                        // document.getElementById('favorites-section').classList.remove('hidden');
+                        setupLogout();
+
+                    } catch (err) {
+                        console.error("Kullanıcı bilgisi alınamadı:", err);
+                        // Token bozuksa giriş yapılmamış gibi göster
+                        authButtonsContainer.innerHTML = `<a href="/login/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Giriş Yap</a>`;
+                        // mobileAuthButtonsContainer.innerHTML = `<a href="/login/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Giriş Yap</a>`;
+                    }
+                } else {
+                    // Giriş yapılmamışsa
+                    authButtonsContainer.innerHTML = `
+                        <a href="/login/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Giriş Yap</a>
+                        <a href="/register/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                        <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+                        </a>
+                    `;
+                    // mobileAuthButtonsContainer.innerHTML = `
+                    //     <a href="/login/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Giriş Yap</a>
+                    //     <a href="/register/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                    //     <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+                    //     </a>
+                    // `;
+                }
+        }
+        function setupLogout() {
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('access');
+                    localStorage.removeItem('refresh');
+                    localStorage.removeItem('username');
+                    document.cookie = "access=; Max-Age=0; path=/;";
+                    document.cookie = "refresh=; Max-Age=0; path=/;";
+                    location.reload();
+                    window.location.href = '/';
+                });
+            }
+            
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('access');
+                    localStorage.removeItem('refresh');
+                    localStorage.removeItem('username');
+                     document.cookie = "access=; Max-Age=0; path=/;";
+                    document.cookie = "refresh=; Max-Age=0; path=/;";
+                    location.reload();
+                    window.location.href = '/';
+                });
+            }
+        }
         tabs.forEach((tab, index) => {
             tab.addEventListener('click', () => {
                 // Reset all tabs and contents
@@ -378,7 +516,196 @@
 
         // Mobile menu toggle (example, adjust if needed)
         // ... (Navbar'daki mobil menü script'i buraya da eklenebilir veya merkezi bir JS dosyasından yönetilebilir) ...
+    document.addEventListener('DOMContentLoaded', () => {
+    const currentUsername = localStorage.getItem("username");
+    const auctionOwner = document.body.dataset.owner;
+console.log(auctionOwner);
+console.log(currentUsername);
 
+    const bidForm = document.querySelector('#bid-submit-button')?.closest('div.bg-gray-50'); // teklif form container'ı
+    const acceptRejectArea = document.querySelector('#bids-content'); // teklif geçmişi alanı
+
+    // Eğer kullanıcı kendi ilanına bakıyorsa
+    if (currentUsername === auctionOwner) {
+        // Teklif verme formunu gizle
+        if (bidForm) {
+            bidForm.style.display = 'none';
+        }
+
+        // Teklif geçmişinde kabul/ret butonları göster
+        document.querySelectorAll('#bids-content [data-bid-id]').forEach(bidElement => {
+    const bidContainer = bidElement.querySelector('.flex-1');
+    const bidId = bidElement.dataset.bidId;
+    const bidStatus = bidElement.dataset.status;
+
+if (auctionOwner === currentUsername && bidStatus === 'pending') {
+    const controls = document.createElement('div');
+    controls.className = "mt-2 flex gap-2";
+    controls.innerHTML = `
+        <button type="button" class="px-3 py-1 text-sm bg-green-500 text-white rounded accept-btn" data-id="${bidId}">Kabul Et</button>
+        <button type="button" class="px-3 py-1 text-sm bg-red-500 text-white rounded reject-btn" data-id="${bidId}">Reddet</button>
+    `;
+    bidContainer.appendChild(controls);
+}
+});
+    } else {
+        // Kendi ilanı değilse teklifleri yönetmesin
+        document.querySelectorAll('.accept-btn, .reject-btn').forEach(btn => btn.remove());
+    }
+
+    // Kabul / Reddet işlemleri
+    document.addEventListener('click', async e => {
+        if (e.target.classList.contains('accept-btn') || e.target.classList.contains('reject-btn')) {
+            e.preventDefault();
+            const bidId = e.target.dataset.id;
+            const isAccept = e.target.classList.contains('accept-btn');
+            const url = isAccept 
+                ? `/api/bids/${bidId}/accept/` 
+                : `/api/bids/${bidId}/reject/`;
+            const token = localStorage.getItem("access");
+            console.log(token);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers:{
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            if (response.ok) {
+                alert(isAccept ? "Teklif kabul edildi." : "Teklif reddedildi.");
+                location.reload();
+            } else {
+                const result = await response.json();
+                alert(result.detail || "Bir hata oluştu.");
+            }
+        }
+    });
+});
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem("access");
+    const currentUsername = localStorage.getItem("username");
+    const auctionOwner = document.body.dataset.owner;
+
+    const bidFormContainer = document.getElementById('bid-form-container');
+    const loginWarning = document.getElementById('login-warning');
+
+    if (!token) {
+        loginWarning.classList.remove('hidden'); // Giriş yap uyarısı göster
+    } else if (currentUsername === auctionOwner) {
+        // Kendi ilanıysa hiçbir şey gösterme
+    } else {
+        bidFormContainer.classList.remove('hidden'); // Teklif formunu göster
+    }
+
+    // Teklif gönderme işlemi
+    const bidForm = document.getElementById('bid-form');
+bidForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const amount = parseFloat(document.getElementById('bid-amount').value);
+    console.log("Gönderilecek amount:", amount);  // 🐞 burada kontrol et
+    if (!amount || isNaN(amount)) {
+        alert("Lütfen geçerli bir teklif girin.");
+        return;
+    }
+
+    const auctionId = window.location.pathname.split('/').filter(Boolean).pop();
+    const token = localStorage.getItem("access");
+
+    try {
+        const response = await fetch(`/api/auctions/${auctionId}/bids/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ amount: amount })
+        });
+
+        if (response.ok) {
+            alert("Teklif başarıyla gönderildi.");
+            window.location.reload();
+        } else {
+            const result = await response.json();
+            console.error("Hata:", result);
+            alert(result.detail || "Teklif gönderilemedi.");
+        }
+    } catch (err) {
+        console.error("İstek hatası:", err);
+        alert("Sunucuya ulaşılamadı.");
+    }
+});
+});
+document.addEventListener('click', async function(e) {
+    if (e.target.classList.contains('cancel-bid-btn')) {
+        const bidId = e.target.dataset.id;
+        const token = localStorage.getItem("access");
+
+        const confirmCancel = confirm("Bu teklifi iptal etmek istediğinizden emin misiniz?");
+        if (!confirmCancel) return;
+
+        try {
+            const response = await fetch(`/api/auctions/bids/${bidId}/cancel/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert("Teklif iptal edildi.");
+                location.reload();
+            } else {
+                alert(data.detail || "İptal işlemi başarısız.");
+            }
+        } catch (err) {
+            alert("Sunucuya ulaşılamadı.");
+        }
+    }
+});
+
+document.getElementById('submit-comment').addEventListener('click', async () => {
+    const token = localStorage.getItem("access");
+    const comment = document.getElementById('comment-text').value.trim();
+    const auctionId = window.location.pathname.split('/').filter(Boolean).pop();
+
+    if (!comment) {
+        alert("Yorum boş olamaz.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/auctions/${auctionId}/comments/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ text: comment })
+        });
+
+        if (response.ok) {
+            alert("Yorum gönderildi.");
+            location.reload();
+        } else {
+            const result = await response.json();
+            alert(result.detail || "Yorum gönderilemedi.");
+        }
+    } catch (err) {
+        alert("Sunucuya ulaşılamadı.");
+        console.error(err);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+            renderAuthButtons();
+            setupLogout();
+        });
+
+
+        
     </script>
 </body>
 </html>

@@ -267,7 +267,8 @@
                     // ✅ Giriş başarılı – token'ları kaydet
                     localStorage.setItem('access', data.access);
                     localStorage.setItem('refresh', data.refresh);
-                    
+                    localStorage.setItem('username',username);
+                    document.cookie = `access=${data.access}; path=/;`; 
                     // Eğer "beni hatırla" seçiliyse, ekstra bilgi kaydet
                     if (rememberMe) {
                         localStorage.setItem('remember_user', username);

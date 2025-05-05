@@ -361,7 +361,7 @@
             mobileAuthButtonsContainer.innerHTML = mobileContent;
 
             // Favoriler kısmını göster
-            document.getElementById('favorites-section').classList.remove('hidden');
+            // document.getElementById('favorites-section').classList.remove('hidden');
             setupLogout();
 
         } catch (err) {
@@ -369,14 +369,27 @@
             // Token bozuksa giriş yapılmamış gibi göster
             authButtonsContainer.innerHTML = `<a href="/login/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Giriş Yap</a>`;
             mobileAuthButtonsContainer.innerHTML = `<a href="/login/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Giriş Yap</a>`;
+
+            authButtonsContainer.innerHTML = `
+            <a href="/login/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Giriş Yap</a>
+            <a href="/register/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+         <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+            </a>
+        `;
+        mobileAuthButtonsContainer.innerHTML = `
+            <a href="/login/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Giriş Yap</a>
+            <a href="/register/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+            <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+            </a>
+        `;
         }
     } else {
         // Giriş yapılmamışsa
         authButtonsContainer.innerHTML = `
             <a href="/login/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Giriş Yap</a>
             <a href="/register/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-  <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
-</a>
+         <i class="fas fa-user-plus mr-1"></i> Kayıt Ol
+            </a>
         `;
         mobileAuthButtonsContainer.innerHTML = `
             <a href="/login/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Giriş Yap</a>
@@ -406,7 +419,7 @@
             });
         }
         
-        async function renderAuctions() {
+  async function renderAuctions() {
   const container = document.getElementById('auctions-container');
   container.innerHTML = ''; // Önce temizle
 
@@ -514,62 +527,62 @@ function setupFavoriteButtons() {
   });
 }
         // Render favorites (if logged in)
-        async function renderFavorites() {
-  const container = document.getElementById('favorites-container');
-  const section = document.getElementById('favorites-section');
-  const token = localStorage.getItem('access');
+//   async function renderFavorites() {
+//   const container = document.getElementById('favorites-container');
+//   const section = document.getElementById('favorites-section');
+//   const token = localStorage.getItem('access');
 
-  if (!token) return; // Giriş yapılmadıysa gösterme
+//   if (!token) return; // Giriş yapılmadıysa gösterme
 
-  try {
-    const response = await fetch('/api/profile/', {
-      headers: {
-        'Authorization': 'Bearer ' + token,
-      }
-    });
+//   try {
+//     const response = await fetch('/api/favorites/', {
+//       headers: {
+//         'Authorization': 'Bearer ' + token,
+//       }
+//     });
 
-    if (!response.ok) throw new Error("Favoriler yüklenemedi.");
+//     if (!response.ok) throw new Error("Favoriler yüklenemedi.");
 
-    const data = await response.json();
-    const favorites = data.favorites;
+//     const data = await response.json();
+    
+    
+//     if (data.length === 0) {
+//       container.innerHTML = `
+//         <div class="col-span-3 text-center py-8">
+//           <i class="fas fa-heart text-gray-300 text-4xl mb-4"></i>
+//           <p class="text-gray-500">Henüz favori ürün eklemediniz.</p>
+//           <a href="#" class="mt-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+//               Ürünlere Göz At
+//           </a>
+//         </div>
+//       `;
+//       section.classList.remove('hidden');
+//       return;
+//     }
+//     console.log(data);
+//     data.forEach(auction => {
+//       const auctionElement = document.createElement('div');
+//       auctionElement.className = 'card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300';
+//       auctionElement.innerHTML = `
+//         <div class="relative pb-2/3 h-48">
+//           <img class="absolute h-full w-full object-cover" src="${auction.auction.image || 'https://via.placeholder.com/300x200?text=Favori'}" alt="${auction.auction.title}">
+//           <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition">
+//               <i class="fas fa-heart"></i>
+//           </button>
+//         </div>
+//         <div class="p-4">
+//           <h3 class="text-lg font-medium text-gray-900 mb-1">${auction.auction.title}</h3>
+//           <span class="text-lg font-bold text-indigo-600">${parseFloat(auction.auction.starting_price).toLocaleString()} ₺</span>
+//         </div>
+//       `;
+//       container.appendChild(auctionElement);
+//     });
 
-    if (favorites.length === 0) {
-      container.innerHTML = `
-        <div class="col-span-3 text-center py-8">
-          <i class="fas fa-heart text-gray-300 text-4xl mb-4"></i>
-          <p class="text-gray-500">Henüz favori ürün eklemediniz.</p>
-          <a href="#" class="mt-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-              Ürünlere Göz At
-          </a>
-        </div>
-      `;
-      section.classList.remove('hidden');
-      return;
-    }
-
-    favorites.forEach(auction => {
-      const auctionElement = document.createElement('div');
-      auctionElement.className = 'card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300';
-      auctionElement.innerHTML = `
-        <div class="relative pb-2/3 h-48">
-          <img class="absolute h-full w-full object-cover" src="${auction.image || 'https://via.placeholder.com/300x200?text=Favori'}" alt="${auction.title}">
-          <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition">
-              <i class="fas fa-heart"></i>
-          </button>
-        </div>
-        <div class="p-4">
-          <h3 class="text-lg font-medium text-gray-900 mb-1">${auction.title}</h3>
-          <span class="text-lg font-bold text-indigo-600">${parseFloat(auction.starting_price).toLocaleString()} ₺</span>
-        </div>
-      `;
-      container.appendChild(auctionElement);
-    });
-
-    section.classList.remove('hidden'); // Favoriler varsa göster
-  } catch (err) {
-    console.error(err);
-  }
-}
+//     section.classList.remove('hidden'); // Favoriler varsa göster
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
         
         // Mobile menu toggle
         document.getElementById('mobile-menu-button').addEventListener('click', function() {
@@ -584,9 +597,13 @@ function setupFavoriteButtons() {
             
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
+                       e.preventDefault();
                     localStorage.removeItem('access');
                     localStorage.removeItem('refresh');
+                    localStorage.removeItem('username');
+                    document.cookie = "access=; Max-Age=0; path=/;";
+                    document.cookie = "refresh=; Max-Age=0; path=/;";
+                    location.reload();
                     window.location.href = '/';
                 });
             }
@@ -596,6 +613,10 @@ function setupFavoriteButtons() {
                     e.preventDefault();
                     localStorage.removeItem('access');
                     localStorage.removeItem('refresh');
+                    localStorage.removeItem('username');
+                    document.cookie = "access=; Max-Age=0; path=/;";
+                    document.cookie = "refresh=; Max-Age=0; path=/;";
+                    location.reload();
                     window.location.href = '/';
                 });
             }
@@ -606,7 +627,7 @@ function setupFavoriteButtons() {
             renderAuthButtons();
             renderCategories();
             renderAuctions();
-            renderFavorites();
+            // renderFavorites();
             setupLogout();
         });
     </script>
