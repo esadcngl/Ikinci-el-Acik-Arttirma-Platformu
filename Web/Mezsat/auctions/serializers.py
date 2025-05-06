@@ -56,7 +56,7 @@ class AuctionMiniSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'image', 'starting_price', 'buy_now_price']
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    auction = AuctionMiniSerializer(read_only=True)
+    auction = AuctionSerializer(read_only=True)
 
     class Meta:
         model = Favorite

@@ -182,9 +182,9 @@
                 <h1 class="text-xl font-bold mb-1 text-center">John Doe</h1>
                 <p class="text-gray-500 text-sm mb-4">Üye since: 15 Mart 2022</p>
                 
-                <a href="#" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
-                    <i class="fas fa-edit mr-2"></i> Profili Düzenle
-                </a>
+            <a href="#" onclick="switchTab('settings')" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
+    <i class="fas fa-edit mr-2"></i> Profili Düzenle
+</a>
                 
                 <!-- Rating -->
                 
@@ -430,17 +430,18 @@
                     <div class="bg-white shadow rounded-lg overflow-hidden">
                         <div class="divide-y divide-gray-200">
                             <!-- Personal Information -->
+                         <form id="settings-form" enctype="multipart/form-data">
                             <div class="px-4 py-5 sm:p-6">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900">Kişisel Bilgiler</h3>
                                 <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                                     <div class="sm:col-span-3">
                                         <label for="first-name" class="block text-sm font-medium text-gray-700">Ad</label>
-                                        <input type="text" name="first-name" id="first-name" autocomplete="given-name" value="John" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <input type="text" name="first_name" id="first_name" autocomplete="given-name" value="John" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                     </div>
 
                                     <div class="sm:col-span-3">
                                         <label for="last-name" class="block text-sm font-medium text-gray-700">Soyad</label>
-                                        <input type="text" name="last-name" id="last-name" autocomplete="family-name" value="Doe" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <input type="text" name="last_name" id="last_name" autocomplete="family-name" value="Doe" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                     </div>
 
                                     <div class="sm:col-span-4">
@@ -452,26 +453,6 @@
                                         <label for="phone" class="block text-sm font-medium text-gray-700">Telefon</label>
                                         <input type="text" name="phone" id="phone" autocomplete="tel" value="+90 555 123 45 67" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                     </div>
-
-                                    <div class="sm:col-span-3">
-                                        <label for="country" class="block text-sm font-medium text-gray-700">Ülke</label>
-                                        <select id="country" name="country" autocomplete="country-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                            <option>Türkiye</option>
-                                            <option>ABD</option>
-                                            <option>Almanya</option>
-                                            <option>İngiltere</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="sm:col-span-3">
-                                        <label for="city" class="block text-sm font-medium text-gray-700">Şehir</label>
-                                        <input type="text" name="city" id="city" autocomplete="address-level2" value="İstanbul" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    </div>
-
-                                    <div class="sm:col-span-6">
-                                        <label for="address" class="block text-sm font-medium text-gray-700">Adres</label>
-                                        <input type="text" name="address" id="address" autocomplete="street-address" value="Atatürk Mah. Cumhuriyet Cad. No:123" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    </div>
                                 </div>
                             </div>
 
@@ -481,6 +462,7 @@
                                     Değişiklikleri Kaydet
                                 </button>
                             </div>
+                         </form>
                         </div>
                     </div>
                 </div>
@@ -549,11 +531,13 @@
         document.getElementById('favorites-tab').addEventListener('click', function(e) {
             e.preventDefault();
             switchTab('favorites');
+            loadFavoriteProducts();
         });
         
         document.getElementById('completed-tab').addEventListener('click', function(e) {
             e.preventDefault();
             switchTab('completed');
+            loadCompletedAuctions();
         });
         
         
@@ -713,9 +697,12 @@
     auctions.forEach(auction => {
         const now = new Date();
         const endTime = new Date(auction.end_time);
+        const startTime = new Date(auction.created_at);
+        const totalDuration = endTime - startTime;
         const timeDiff = endTime - now;
         const daysLeft = Math.max(Math.ceil(timeDiff / (1000 * 60 * 60 * 24)), 0);
-
+        const progress = Math.max(0, Math.min(100, 100 * (1 - timeDiff / totalDuration)));
+console.log(progress.toFixed(0));
         const card = `
         <div class="card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300">
             <div class="relative pb-2/3 h-48">
@@ -740,7 +727,7 @@
                 <div class="mt-4">
                     <div class="flex items-center mb-2">
                         <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 50%"></div>
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width:${progress.toFixed(0)}%"></div>
                         </div>
                         <span class="ml-2 text-sm text-gray-600">${daysLeft} gün kaldı</span>
                     </div>
@@ -800,7 +787,7 @@ window.addEventListener('load', loadActiveAuctions);
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/profile/', {
+        const response = await fetch('http://127.0.0.1:8000/api/profile', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -833,16 +820,291 @@ window.addEventListener('load', loadActiveAuctions);
                 span.textContent = data.username;
             }
         });
-
+         console.log(data.first_name);
         // Ayarlar alanı
         document.getElementById('email').value = data.email || '';
         document.getElementById('phone').value = data.phone || '';
+        document.getElementById('first_name').value = data.first_name || '';
+        document.getElementById('last_name').value = data.last_name || '';
 
     } catch (err) {
         console.error(err);
         window.location.href = '/';
     }
 });
+async function loadCompletedAuctions() {
+    const token = localStorage.getItem('access');
+    const response = await fetch('http://127.0.0.1:8000/api/my-auctions/', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        console.error('Tamamlanan ilanlar alınamadı.');
+        return;
+    }
+
+    const allAuctions = await response.json();
+    const completedAuctions = allAuctions.filter(a => !a.is_active);
+
+    const container = document.getElementById('completed-content');
+    container.innerHTML = `
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
+    `;
+    const grid = container.querySelector('.grid');
+
+    if (completedAuctions.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-3 text-center py-12">
+                <i class="fas fa-box-open text-gray-300 text-5xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Tamamlanmış ilanınız bulunmuyor</h3>
+                <p class="text-gray-500 mb-6">Zamanı dolan ya da satılan ilanlar burada görünecek.</p>
+                <a href="/" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                    Yeni Ürün Listele
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    completedAuctions.forEach(auction => {
+        const endDate = new Date(auction.end_time);
+        const now = new Date();
+
+        let badgeText = 'Zamanı Doldu';
+        let badgeColor = 'bg-yellow-600';
+
+        if (auction.status === 'sold') {
+            badgeText = 'Satıldı';
+            badgeColor = 'bg-green-600';
+        }
+
+        const progress = 100;
+
+        const card = `
+        <div class="card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300 relative">
+            <div class="relative pb-2/3 h-48">
+                <img class="absolute h-full w-full object-cover" src="${auction.image}" alt="${auction.title}">
+                <span class="absolute top-2 left-2 px-2 py-1 ${badgeColor} text-white text-xs font-semibold rounded">${badgeText}</span>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-1">${auction.title}</h3>
+                        <p class="text-sm text-gray-500">${auction.category_name}</p>
+                    </div>
+                    <span class="text-lg font-bold text-indigo-600">${parseFloat(auction.starting_price).toLocaleString('tr-TR')} ₺</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center mb-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${progress}%"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">Tamamlandı</span>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Şimdi Satın Al: ${parseFloat(auction.buy_now_price).toLocaleString('tr-TR')} ₺
+                    </div>
+                     <a href="/auctions/${auction.id}/" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
+                            Detay
+                    </a>
+                </div>
+            </div>
+        </div>
+        `;
+
+        grid.innerHTML += card;
+    });
+}
+
+async function loadFavoriteProducts() {
+    const token = localStorage.getItem('access');
+    const response = await fetch('http://127.0.0.1:8000/api/favorites/', {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('Favori ürünler alınamadı.');
+        return;
+    }
+
+    const favorites = await response.json();
+    const container = document.querySelector('#favorites-content .grid');
+    container.innerHTML = ''; // Önce temizle
+
+    // Favori sayısını güncelle
+    document.getElementById('favorites-tab').innerHTML = `<i class="fas fa-heart mr-2"></i> Favoriler (${favorites.length})`;
+
+    if (favorites.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-3 text-center py-12">
+                <i class="fas fa-heart text-gray-300 text-5xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Favorileriniz boş görünüyor</h3>
+                <p class="text-gray-500 mb-6">Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.</p>
+                <a href="/" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                    Ürünlere Göz At
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    favorites.forEach(fav => {
+        const auction = fav.auction;
+        const now = new Date();
+        const endTime = new Date(auction.end_time);
+        const startTime = new Date(auction.created_at);
+        const totalDuration = endTime - startTime;
+        const timeDiff = endTime - now;
+        const daysLeft = Math.max(Math.ceil(timeDiff / (1000 * 60 * 60 * 24)), 0);
+        const progress = Math.max(0, Math.min(100, 100 * (1 - timeDiff / totalDuration)));
+
+        let badge = '';
+        if (!auction.is_active) {
+            badge = `<span class="absolute top-2 left-2 bg-gray-700 text-white text-xs px-2 py-1 rounded">Zamanı Bitti</span>`;
+        }
+
+        const card = `
+        <div class="card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300 relative">
+            <div class="relative pb-2/3 h-48">
+                <img class="absolute h-full w-full object-cover" src="${auction.image}" alt="${auction.title}">
+                ${badge}
+                <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition favorite-btn" data-id="${auction.id}">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-1">${auction.title}</h3>
+                        <p class="text-sm text-gray-500">${auction.category_name || ''}</p>
+                    </div>
+                    <span class="text-lg font-bold text-indigo-600">${parseFloat(auction.starting_price).toLocaleString('tr-TR')} ₺</span>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center mb-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${progress.toFixed(0)}%"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">${daysLeft} gün kaldı</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-500">
+                            Şimdi Satın Al: ${parseFloat(auction.buy_now_price).toLocaleString('tr-TR')} ₺
+                        </div>
+                        <a href="/auctions/${auction.id}/" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
+                            Detay
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+
+        container.innerHTML += card;
+    });
+}
+document.addEventListener('click', async function(e) {
+    if (e.target.closest('.favorite-btn')) {
+        e.preventDefault();
+        const button = e.target.closest('.favorite-btn');
+        const auctionId = button.getAttribute('data-id');
+        const token = localStorage.getItem('access');
+
+        // Kalp animasyonu
+        button.classList.add('heart-animation');
+        setTimeout(() => button.classList.remove('heart-animation'), 800);
+
+        const res = await fetch(`http://127.0.0.1:8000/api/auctions/${auctionId}/favorite/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (res.ok) {
+            // DOM'dan kaldır
+            button.closest('.card-hover').remove();
+
+            // Sekme başlığındaki sayı azalt
+            const tab = document.getElementById('favorites-tab');
+            const match = tab.textContent.match(/\((\d+)\)/);
+            if (match) {
+                const current = parseInt(match[1]);
+                const newCount = Math.max(0, current - 1);
+                tab.innerHTML = `<i class="fas fa-heart mr-2"></i> Favoriler (${newCount})`;
+            }
+
+            // Kalan yoksa boş içerik göster
+            if (document.querySelectorAll('.favorite-btn').length === 0) {
+                const container = document.querySelector('#favorites-content .grid');
+                container.innerHTML = `
+                    <div class="col-span-3 text-center py-12">
+                        <i class="fas fa-heart text-gray-300 text-5xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Favorileriniz boş görünüyor</h3>
+                        <p class="text-gray-500 mb-6">Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.</p>
+                        <a href="/" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                            Ürünlere Göz At
+                        </a>
+                    </div>
+                `;
+            }
+        } else {
+            alert("Favoriden çıkarılamadı.");
+        }
+    }
+});
+
+document.querySelector('#settings-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem('access');
+    if (!token) {
+        alert('Oturum açmanız gerekiyor.');
+        return;
+    }
+
+    const form = document.getElementById('settings-form');
+    const formData = new FormData(form); // Form verisini form-data olarak al
+    const fileInput = document.getElementById('imageUpload');
+    if (fileInput && fileInput.files.length > 0) {
+    formData.append('profile_image', fileInput.files[0]);
+    }
+    try {
+        const res = await fetch('http://127.0.0.1:8000/api/profile/update/', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+                // DİKKAT: Content-Type **YAZMA**, fetch bunu FormData ile otomatik ayarlıyor
+            },
+            body: formData
+        });
+
+        if (!res.ok) {
+            const errData = await res.json();
+            alert("Hata: " + (errData.detail || 'Güncelleme başarısız.'));
+            return;
+        }
+
+        alert('Profil bilgileri başarıyla güncellendi.');
+        location.reload();
+    } catch (err) {
+        console.error(err);
+        alert('Bir hata oluştu.');
+    }
+});
+
+document.getElementById('imageUpload').addEventListener('change', function () {
+    // Dosya seçilmişse ayarlar formunu submit et
+    if (this.files.length > 0) {
+        document.getElementById('settings-form').requestSubmit(); // modern submit
+    }
+});
+window.addEventListener('load', loadFavoriteProducts);
     </script>
 </body>
 </html>
