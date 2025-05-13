@@ -45,7 +45,7 @@
                 </div>
                 <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
                     <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
-                    <a href="#category" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="kategoriler/elektronik/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
                     <a href="#how-it-works" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
                     <div id="auth-buttons">
                         <!-- Will be filled by JavaScript -->
@@ -63,7 +63,7 @@
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Ana Sayfa</a>
-                <a href="#category" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
+                <a href="kategoriler/elektronik/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
                 <a href="#how-it-works" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Nasıl Çalışır?</a>
                 <div id="mobile-auth-buttons" class="pt-2">
                     <!-- Will be filled by JavaScript -->
@@ -86,7 +86,7 @@
                     <a href="#" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-gray-100 transition">
                         <i class="fas fa-search mr-2"></i> Hemen Göz At
                     </a>
-                    <a href="#" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 bg-opacity-60 hover:bg-opacity-70 transition">
+                    <a href="{% url 'auction-create' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 bg-opacity-60 hover:bg-opacity-70 transition">
                         <i class="fas fa-plus mr-2"></i> İlan Oluştur
                     </a>
                 </div>
@@ -107,7 +107,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-3xl font-extrabold text-gray-900">Son Eklenen İlanlar</h2>
-                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">Tümünü Gör <i class="fas fa-arrow-right ml-1"></i></a>
+                <a href="kategoriler/elektronik/" class="text-indigo-600 hover:text-indigo-800 font-medium">Tümünü Gör <i class="fas fa-arrow-right ml-1"></i></a>
             </div>
             <div id="auctions-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <!-- Auction cards will be added by JavaScript -->
@@ -341,7 +341,7 @@
                             <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Çıkış Yap</a>
                         </div>
                     </div>
-                    <a href="#" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                    <a href="{% url 'auction-create' %}" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
                         <i class="fas fa-plus mr-1"></i> İlan Ver
                     </a>
                 </div>
@@ -352,7 +352,7 @@
                 <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Favorilerim</a>
                 <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">İlanlarım</a>
                 <a href="#" id="mobile-logout-btn" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Çıkış Yap</a>
-                <a href="#" class="block px-3 py-2 mt-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
+                <a href="{% url 'auction-create' %}" class="block px-3 py-2 mt-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
                     <i class="fas fa-plus mr-1"></i> İlan Ver
                 </a>
             `;

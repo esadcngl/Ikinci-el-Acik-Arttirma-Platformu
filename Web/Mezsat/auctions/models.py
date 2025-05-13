@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-
+from django.utils.text import slugify
 class Auction(models.Model):
     STATUS_CHOICES = [
         ('active', 'Aktif'),
@@ -80,11 +80,15 @@ class Favorite(models.Model):
         return f"{self.user.username} favorited {self.auction.title}"   
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True, blank=True)
+    icon = models.CharField(max_length=100, blank=True)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='subcategories', on_delete=models.CASCADE)
 
-    class Meta:
-        verbose_name_plural = "Categories"
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

@@ -12,8 +12,8 @@ from rest_framework import status , serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from decimal import Decimal
-
-
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 class BidCreateView(generics.CreateAPIView):
     serializer_class = BidSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -321,3 +321,10 @@ class CompletePaymentView(APIView):
         auction.save()
 
         return Response({"detail": "Satın alma tamamlandı. İlan kapatıldı."})
+    
+@api_view(['GET'])
+def category_list_api(request):
+    # Ana kategoriler (parent'ı olmayanlar)
+    categories = Category.objects.filter(parent__isnull=True).order_by('name')
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data)

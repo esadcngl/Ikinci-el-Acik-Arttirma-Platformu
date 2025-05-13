@@ -104,7 +104,11 @@
             </div>
         </div>
     </nav>
-
+<!-- Kategori Menüsü -->
+<div id="category-menu" class="bg-white shadow overflow-x-auto whitespace-nowrap py-3 px-4">
+  <a href="#" class="inline-block text-gray-700 font-medium mr-6">Tüm Kategoriler</a>
+  <!-- Örnek kategoriler buraya JS ile eklenecek -->
+</div>
     <!-- Page Header -->
     <div class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -172,6 +176,36 @@
                 <!-- Auction Grid -->
                 <div id="auctions-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     <!-- Auction cards will be added by JavaScript -->
+                    {% for auction in listings %}
+    <div class="card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300">
+        <div class="relative pb-2/3 h-48">
+            <img class="absolute h-full w-full object-cover" src="{{ auction.image.url }}" alt="{{ auction.title }}">
+           
+        </div>
+        <div class="p-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">{{ auction.title }}</h3>
+                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">{{ auction.category.name }}</span>
+                </div>
+                <span class="text-lg font-bold text-indigo-600">{{ auction.starting_price|floatformat:0 }} ₺</span>
+            </div>
+            <div class="mt-4">
+                <div class="flex justify-between items-center">
+                    <a href="{% url 'auction-detail' auction.pk %}" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
+                        Detay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-3 text-center py-12">
+        <i class="fas fa-search text-gray-300 text-4xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Bu kategoride ilan bulunamadı.</h3>
+    </div>
+    {% endfor %}
+
                 </div>
                 
                 <!-- Pagination -->
@@ -274,126 +308,7 @@
             { id: 8, name: 'Ev & Yaşam', icon: 'fa-home', count: 654 }
         ];
         
-        // Sample data for auctions (extended)
-        const auctions = [
-            { 
-                id: 1, 
-                title: 'Apple MacBook Pro 2021 M1', 
-                price: 25000, 
-                category: 'Elektronik', 
-                image: 'https://via.placeholder.com/300x200?text=MacBook+Pro', 
-                isFavorite: false,
-                bids: 5,
-                lastBid: 24500,
-                daysLeft: 3,
-                progress: 75,
-                condition: 'Sıfır'
-            },
-            { 
-                id: 2, 
-                title: 'Nike Air Jordan 1 Retro', 
-                price: 3500, 
-                category: 'Moda', 
-                image: 'https://via.placeholder.com/300x200?text=Nike+Jordan', 
-                isFavorite: true,
-                bids: 12,
-                lastBid: 3750,
-                daysLeft: 5,
-                progress: 45,
-                condition: 'İkinci El'
-            },
-            { 
-                id: 3, 
-                title: 'Suç ve Ceza - Dostoyevski', 
-                price: 75, 
-                category: 'Kitap', 
-                image: 'https://via.placeholder.com/300x200?text=Suç+ve+Ceza', 
-                isFavorite: false,
-                bids: 2,
-                lastBid: 70,
-                daysLeft: 7,
-                progress: 15,
-                condition: 'İkinci El'
-            },
-            { 
-                id: 4, 
-                title: 'Antik Ahşap Masa', 
-                price: 4500, 
-                category: 'Mobilya', 
-                image: 'https://via.placeholder.com/300x200?text=Ahşap+Masa', 
-                isFavorite: true,
-                bids: 3,
-                lastBid: 4200,
-                daysLeft: 2,
-                progress: 65,
-                condition: 'İkinci El'
-            },
-            { 
-                id: 5, 
-                title: 'iPhone 13 Pro 128GB', 
-                price: 18000, 
-                category: 'Elektronik', 
-                image: 'https://via.placeholder.com/300x200?text=iPhone+13', 
-                isFavorite: false,
-                bids: 8,
-                lastBid: 17500,
-                daysLeft: 1,
-                progress: 90,
-                condition: 'Sıfır'
-            },
-            { 
-                id: 6, 
-                title: 'Adidas Ultraboost 21', 
-                price: 2200, 
-                category: 'Spor', 
-                image: 'https://via.placeholder.com/300x200?text=Ultraboost', 
-                isFavorite: false,
-                bids: 4,
-                lastBid: 2100,
-                daysLeft: 4,
-                progress: 50,
-                condition: 'İkinci El'
-            },
-            { 
-                id: 7, 
-                title: 'Sony PlayStation 5', 
-                price: 15000, 
-                category: 'Elektronik', 
-                image: 'https://via.placeholder.com/300x200?text=PS5', 
-                isFavorite: false,
-                bids: 7,
-                lastBid: 14500,
-                daysLeft: 6,
-                progress: 60,
-                condition: 'Sıfır'
-            },
-            { 
-                id: 8, 
-                title: 'Louis Vuitton Çanta', 
-                price: 12000, 
-                category: 'Moda', 
-                image: 'https://via.placeholder.com/300x200?text=LV+Bag', 
-                isFavorite: true,
-                bids: 9,
-                lastBid: 11800,
-                daysLeft: 2,
-                progress: 80,
-                condition: 'İkinci El'
-            },
-            { 
-                id: 9, 
-                title: 'Bisiklet', 
-                price: 3200, 
-                category: 'Spor', 
-                image: 'https://via.placeholder.com/300x200?text=Bisiklet', 
-                isFavorite: false,
-                bids: 3,
-                lastBid: 3000,
-                daysLeft: 5,
-                progress: 40,
-                condition: 'İkinci El'
-            }
-        ];
+       
 
         // Current filters
         let currentFilters = {
@@ -738,7 +653,59 @@
                 });
             }
         }
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/api/categories/tree/')
+        .then(res => res.json())
+        .then(data => renderCategoriesMenu(data));
+});
 
+function renderCategoriesMenu(categories) {
+    const menu = document.getElementById('category-menu');
+
+    categories.forEach(cat => {
+        const link = document.createElement('a');
+        link.href = `/kategoriler/${cat.slug}/`;
+        link.className = "inline-block text-gray-600 hover:text-indigo-600 font-medium mr-6";
+        link.textContent = cat.name;
+        menu.appendChild(link);
+    });
+}
+function renderSidebarCategories(categories) {
+    const container = document.getElementById('categories-filter');
+    container.innerHTML = ''; // Öncekileri temizle
+
+    categories.forEach(cat => {
+        const div = document.createElement('div');
+        div.innerHTML = `<button class="w-full text-left px-2 py-1 font-medium">${cat.name}</button>`;
+
+        if (cat.subcategories.length > 0) {
+            const sublist = document.createElement('div');
+            sublist.className = 'ml-4 mt-1 space-y-1';
+
+            cat.subcategories.forEach(sub => {
+                const subBtn = document.createElement('button');
+                subBtn.className = 'w-full text-left text-sm px-2 py-1 text-gray-600 hover:text-indigo-600';
+                subBtn.textContent = sub.name;
+                subBtn.onclick = () => {
+                    currentFilters.category = sub.name;
+                    applyFilters();
+                    updateActiveFilters();
+                };
+                sublist.appendChild(subBtn);
+            });
+
+            div.appendChild(sublist);
+        }
+
+        container.appendChild(div);
+    });
+}
+fetch('/api/categories/tree/')
+    .then(res => res.json())
+    .then(data => {
+        renderCategoriesMenu(data);
+        renderSidebarCategories(data);
+    });
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
             renderAuthButtons();

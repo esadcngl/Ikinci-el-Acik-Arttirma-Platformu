@@ -29,7 +29,10 @@ urlpatterns = [
     path('', include('users.urls')),    
     path('api/', include('users.api_urls')),
     path('api/', include('auctions.api_urls')),
+    path('api/', include('auctions.urls')),
     path('auctions/<int:pk>/', auction_views.auction_detail_view, name='auction-detail'), 
+    path('auctions/', include('auctions.urls')),
+    path('', include('auctions.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

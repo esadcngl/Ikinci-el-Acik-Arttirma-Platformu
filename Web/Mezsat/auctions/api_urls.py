@@ -1,12 +1,4 @@
 from django.urls import path
-# from .api import BidCreateView
-# from .api import BidListView
-# from .api import AcceptBidView
-# from .api import RejectBidView
-# from .api import AuctionCreateView
-# from .api import AuctionListView
-# from .api import AuctionDetailView
-# from .api import CommentCreateView
 from .api import *
 urlpatterns = [
     path('auctions/<int:pk>/bids/', BidCreateView.as_view(), name='bid-create'),
@@ -25,9 +17,11 @@ urlpatterns = [
     path('users/<int:user_id>/auctions/', UserAuctionsView.as_view(), name='user-auctions'),
     path('auctions/<int:pk>/edit/', AuctionUpdateView.as_view(), name='auction-edit'),
     path('auctions/<int:pk>/delete/', AuctionDeleteView.as_view(), name='auction-delete'),
-    path('categories/', CategoryListView.as_view(), name='category-list'),
+    # path('categories/', CategoryListView.as_view(), name='category-list'),
     path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
     path('auctions/<int:auction_id>/buy-now/', BuyNowView.as_view(), name='auction-buy-now'),
     path('auctions/<int:auction_id>/complete-payment/', CompletePaymentView.as_view(), name='complete-payment'),
     path('auctions/bids/<int:pk>/cancel/', CancelBidView.as_view(), name='bid-cancel'),
+    path('categories/', category_list_api, name='category-list'),
+
 ]
