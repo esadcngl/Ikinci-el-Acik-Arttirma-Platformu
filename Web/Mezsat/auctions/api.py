@@ -14,6 +14,8 @@ from rest_framework import filters
 from decimal import Decimal
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+import random
 class BidCreateView(generics.CreateAPIView):
     serializer_class = BidSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -328,3 +330,33 @@ def category_list_api(request):
     categories = Category.objects.filter(parent__isnull=True).order_by('name')
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def predict_view(request):
+    image = request.FILES.get('image')
+    title = request.data.get('title', '')
+    description = request.data.get('description', '')
+
+    if not image or not title or not description:
+        return Response({"detail": "Görsel, başlık ve açıklama zorunludur."}, status=400)
+
+    # Örnek tahminler (gerçek AI entegre edilene kadar)
+    categories = [
+        "Elektronik > Bilgisayar > Dizüstü",
+        "Moda > Kadın > Çanta",
+        "Ev & Yaşam > Mobilya > Masa",
+        "Spor & Outdoor > Kamp > Çadır"
+    ]
+    price_ranges = [
+        "15000-18000",
+        "500-700",
+        "1200-1600",
+        "800-1200"
+    ]
+    idx = random.randint(0, len(categories) - 1)
+
+    return Response({
+        "predicted_category": categories[idx],
+        "predicted_price": price_ranges[idx]
+    })

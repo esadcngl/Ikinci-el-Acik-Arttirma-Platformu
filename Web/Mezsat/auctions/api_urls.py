@@ -23,5 +23,5 @@ urlpatterns = [
     path('auctions/<int:auction_id>/complete-payment/', CompletePaymentView.as_view(), name='complete-payment'),
     path('auctions/bids/<int:pk>/cancel/', CancelBidView.as_view(), name='bid-cancel'),
     path('categories/', category_list_api, name='category-list'),
-
+    path("predict/", predict_view, name="predict"),
 ]

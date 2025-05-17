@@ -120,16 +120,16 @@
                     <a href="/#catogery" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
                     <a href="/#how-it-works" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
                     <div class="flex items-center space-x-4">
-                        <div class="relative group">
-                            <button class="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
-                                <span>john_doe</span>
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center space-x-1 text-gray-700 hover:text-indigo-600 w-28">
+                                <span id="navbar-username">john_doe</span>
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
-                                <a href="profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profilim</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favorilerim</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">İlanlarım</a>
-                                <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Çıkış Yap</a>
+                            <div id="user-menu" class="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg py-1 hidden z-50">
+                                <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-user mr-2"></i> Profilim</a>
+                                <a href="/favorites" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-heart mr-2"></i> Favorilerim</a>
+                                <a href="/auctions" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-tag mr-2"></i> İlanlarım</a>
+                                <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap</a>
                             </div>
                         </div>
                         <a href="#" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
@@ -813,7 +813,7 @@ window.addEventListener('load', loadActiveAuctions);
             const joinedDate = new Date(data.date_joined).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
             joinedElem.innerText = `Üye since: ${joinedDate}`;
         }
-
+        document.getElementById('navbar-username').textContent = data.username;
         // Navbar kullanıcı adı (tüm span'larda geçebilir)
         document.querySelectorAll('span').forEach(span => {
             if (span.textContent.trim() === 'john_doe') {
@@ -917,7 +917,22 @@ async function loadCompletedAuctions() {
         grid.innerHTML += card;
     });
 }
+    function setupDropdownToggle() {
+        document.addEventListener('click', function (e) {
+            const button = document.getElementById('user-menu-button');
+            const menu = document.getElementById('user-menu');
 
+            if (button && button.contains(e.target)) {
+                menu.classList.toggle('hidden');
+            } else if (menu && !menu.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setupDropdownToggle();
+    });
 async function loadFavoriteProducts() {
     const token = localStorage.getItem('access');
     const response = await fetch('http://127.0.0.1:8000/api/favorites/', {

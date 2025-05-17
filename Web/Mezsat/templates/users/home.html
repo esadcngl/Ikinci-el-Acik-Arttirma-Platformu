@@ -309,7 +309,20 @@
                 isFavorite: false 
             }
         ];
-        
+        function setupDropdownToggle() {
+  document.addEventListener('click', function (e) {
+    const button = document.getElementById('user-menu-button');
+    const menu = document.getElementById('user-menu');
+
+    if (button && button.contains(e.target)) {
+      // Butona tıklandıysa menüyü toggle et
+      menu.classList.toggle('hidden');
+    } else if (menu && !menu.contains(e.target)) {
+      // Buton dışında bir yere tıklandıysa menüyü kapat
+      menu.classList.add('hidden');
+    }
+  });
+}
         async function renderAuthButtons() {
     const authButtonsContainer = document.getElementById('auth-buttons');
     const mobileAuthButtonsContainer = document.getElementById('mobile-auth-buttons');
@@ -328,24 +341,25 @@
             const user = await response.json(); // Gerçek kullanıcı
 
             const desktopContent = `
-                <div class="flex items-center space-x-4">
-                    <div class="relative group">
-                        <button class="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
-                            <span>${user.username}</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </button>
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
-                            <a href="profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profilim</a>
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favorilerim</a>
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">İlanlarım</a>
-                            <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Çıkış Yap</a>
-                        </div>
-                    </div>
-                    <a href="{% url 'auction-create' %}" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-                        <i class="fas fa-plus mr-1"></i> İlan Ver
-                    </a>
-                </div>
-            `;
+  <div class="flex items-center space-x-4">
+    <div class="relative">
+      <button id="user-menu-button" class="flex items-center space-x-1 text-gray-700 w-28 hover:text-indigo-600">
+        <span>${user.username}</span>
+        <i class="fas fa-chevron-down text-xs"></i>
+      </button>
+      <div id="user-menu" class="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg py-1 hidden z-50">
+        <a href="/profile/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">  <i class="fas fa-user mr-2"></i> Profilim</a>
+        <a href="/favorites/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"> <i class="fas fa-heart mr-2"></i> Favorilerim</a>
+        <a href="/auctions/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-tag mr-2"></i> İlanlarım</a>
+        <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap</a>
+      </div>
+    </div>
+    <a href="/auction/create/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+      <i class="fas fa-plus mr-1"></i> İlan Ver
+    </a>
+  </div>
+`;
+
 
             const mobileContent = `
                 <a href="profile/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Profilim</a>
@@ -358,6 +372,7 @@
             `;
 
             authButtonsContainer.innerHTML = desktopContent;
+            setupDropdownToggle();
             mobileAuthButtonsContainer.innerHTML = mobileContent;
 
             // Favoriler kısmını göster
