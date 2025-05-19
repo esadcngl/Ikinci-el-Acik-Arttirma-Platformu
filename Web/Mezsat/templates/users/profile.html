@@ -667,7 +667,7 @@
         });
         async function loadActiveAuctions() {
     const token = localStorage.getItem('access');
-    const response = await fetch('http://127.0.0.1:8000/api/my-auctions/', {
+    const response = await fetch('/api/my-auctions/', {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -755,7 +755,7 @@ document.addEventListener('click', async function(e) {
         const auctionId = e.target.closest('.delete-auction-btn').getAttribute('data-id');
         const token = localStorage.getItem('access');
 
-        const res = await fetch(`http://127.0.0.1:8000/api/auctions/${auctionId}/delete/`, {
+        const res = await fetch(`/api/auctions/${auctionId}/delete/`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -787,7 +787,7 @@ window.addEventListener('load', loadActiveAuctions);
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/profile', {
+        const response = await fetch('/api/profile', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -834,7 +834,7 @@ window.addEventListener('load', loadActiveAuctions);
 });
 async function loadCompletedAuctions() {
     const token = localStorage.getItem('access');
-    const response = await fetch('http://127.0.0.1:8000/api/my-auctions/', {
+    const response = await fetch('/api/my-auctions/', {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -935,7 +935,7 @@ async function loadCompletedAuctions() {
     });
 async function loadFavoriteProducts() {
     const token = localStorage.getItem('access');
-    const response = await fetch('http://127.0.0.1:8000/api/favorites/', {
+    const response = await fetch('/api/favorites/', {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -1034,7 +1034,7 @@ document.addEventListener('click', async function(e) {
         button.classList.add('heart-animation');
         setTimeout(() => button.classList.remove('heart-animation'), 800);
 
-        const res = await fetch(`http://127.0.0.1:8000/api/auctions/${auctionId}/favorite/`, {
+        const res = await fetch(`/api/auctions/${auctionId}/favorite/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`

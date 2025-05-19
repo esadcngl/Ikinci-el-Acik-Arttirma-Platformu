@@ -41,8 +41,9 @@ export default function CreateAuctionScreen() {
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.7,
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
     });
     if (!result.canceled) {
       setImage(result.assets[0]);
