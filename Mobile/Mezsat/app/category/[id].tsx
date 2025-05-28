@@ -3,6 +3,8 @@ import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet, 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AuctionCard from '../auctioncard';
+import CustomHeader from '../components/CustomHeader';
 
 const sortOptions = [
   { label: 'Fiyat Artan', value: 'starting_price' },
@@ -113,6 +115,7 @@ const CategoryListingsScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
+      <CustomHeader />
       <TouchableOpacity style={styles.sortButton} onPress={() => setShowSortModal(true)}>
         <Text style={styles.sortButtonText}>Sırala</Text>
       </TouchableOpacity>
@@ -123,23 +126,20 @@ const CategoryListingsScreen = () => {
         <FlatList
           data={auctions}
           keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.card} onPress={() => router.push(`/auction/${item.id}`)}>
-              <Image
-                source={{ uri: item.image || 'https://via.placeholder.com/300x200' }}
-                style={styles.image}
-              />
-              <TouchableOpacity
-                style={styles.favoriteIcon}
-                onPress={() => toggleFavorite(item.id)}
-              >
-                <FontAwesome name={item.is_favorite ? 'heart' : 'heart-o'} size={20} color="red" />
-              </TouchableOpacity>
-              <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-              <Text style={styles.price}>{parseFloat(item.starting_price).toLocaleString()} ₺</Text>
-            </TouchableOpacity>
+            <AuctionCard
+              id={item.id}
+              image={item.image || 'https://via.placeholder.com/300x200'}
+              title={item.title}
+              endTime={item.end_time}
+              price={parseFloat(item.starting_price)}
+              isFavorite={item.is_favorite}
+              category={item.category_name}
+              bidCount={item.bid_count}
+              lastBid={item.last_bid}
+              onToggleFavorite={() => toggleFavorite(item.id)}
+              onPress={() => router.push(`/auction/${item.id}`)}
+            />
           )}
           contentContainerStyle={{ padding: 16 }}
           onEndReached={() => {

@@ -5,9 +5,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router'; 
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import AuctionCard from '../auctioncard';
 
 export default function ProfilScreen() {
-  const [activeTab, setActiveTab] = useState<'favoriler' | 'degerlendirmeler' | 'ayarlar'>('favoriler');
+  const [activeTab, setActiveTab] = useState<'favoriler' | 'ayarlar'>('favoriler');
   const [profile, setProfile] = useState<any>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -187,34 +188,23 @@ export default function ProfilScreen() {
         data={favorites}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.favoriteCard}
-            activeOpacity={0.8}
-            // navigation.navigate yerine router.push kullanın
+          <AuctionCard
+            id={item.auction.id}
+            image={item.auction.image || 'https://via.placeholder.com/300x200'}
+            title={item.auction.title}
+            endTime={item.auction.end_time}
+            price={parseFloat(item.auction.starting_price)}
+            isFavorite={true}
+            category={item.auction.category_name}
+            bidCount={item.auction.bid_count}
+            lastBid={item.auction.last_bid}
+            onToggleFavorite={() => toggleFavorite(item.auction.id)}
             onPress={() => router.push(`/auction/${item.auction.id}`)}
-          >
-            <View style={styles.imageContainer}>
-              <Image
-                source={{
-                  uri: item.auction.image
-                    ? item.auction.image
-                    : 'http://192.168.0.4:8000/media/auction/picture.png',
-                }}
-                style={styles.favoriteImage}
-              />
-              <TouchableOpacity style={styles.heartIcon} onPress={() => toggleFavorite(item.auction.id)}>
-                <Ionicons name="heart" size={24} color="red" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.cardContent}>
-              <Text style={styles.favoriteTitle}>{item.auction.title}</Text>
-              <Text style={styles.favoritePrice}>
-                {parseFloat(item.auction.starting_price).toLocaleString()} ₺
-              </Text>
-            </View>
-          </TouchableOpacity>
+          />
         )}
-        contentContainerStyle={{ gap: 16, padding: 16 }}
+        contentContainerStyle={{ padding: 16 }}
+        refreshing={loadingFavorites}
+        onRefresh={fetchFavorites}
       />
     );
   };
@@ -243,14 +233,14 @@ export default function ProfilScreen() {
 
       {/* Sekmeler */}
       <View style={styles.tabs}>
-        {['favoriler', 'degerlendirmeler', 'ayarlar'].map((tab) => (
+        {['favoriler', 'ayarlar'].map((tab) => (
           <TouchableOpacity
             key={tab}
             style={[styles.tab, activeTab === tab && styles.activeTab]}
             onPress={() => setActiveTab(tab as any)}
           >
             <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
-              {tab === 'favoriler' ? 'Favoriler' : tab === 'degerlendirmeler' ? 'Değerlendirmeler' : 'Ayarlar'}
+              {tab === 'favoriler' ? 'Favoriler' : 'Ayarlar'}
             </Text>
           </TouchableOpacity>
         ))}
@@ -259,9 +249,6 @@ export default function ProfilScreen() {
       {/* İçerik */}
       <View style={{ flex: 1 }}>
         {activeTab === 'favoriler' && renderFavorites()}
-        {activeTab === 'degerlendirmeler' && (
-          <View style={styles.tabContent}><Text style={styles.tabContentText}>Değerlendirmeler burada listelenecek.</Text></View>
-        )}
         {activeTab === 'ayarlar' && (
   <View style={styles.tabContent}>
     <TouchableOpacity style={styles.settingButton} onPress={openImagePickerAsync}>
@@ -453,7 +440,22 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
-  
+  categoryNew: {
+    fontSize: 12,
+    color: '#6366f1',
+    backgroundColor: '#eef2ff',
+    alignSelf: 'flex-start',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginBottom: 2,
+    marginTop: 2,
+  },
+  endDate: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
 });
 
 // Favori ilan resim URL'sine backend adresini eklemeyi unutmayın!

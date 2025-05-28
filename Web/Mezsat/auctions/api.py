@@ -349,7 +349,7 @@ class UserAuctionsView(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
-        return Auction.objects.filter(owner_id=user_id, is_active=True).order_by('-created_at')
+        return Auction.objects.filter(owner_id=user_id).order_by('-created_at')
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all().order_by('name')

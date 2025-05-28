@@ -14,6 +14,7 @@ interface AuctionCardProps {
   lastBid?: number;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  onPress?: () => void;
 }
 
 const AuctionCard: React.FC<AuctionCardProps> = ({
@@ -26,7 +27,8 @@ const AuctionCard: React.FC<AuctionCardProps> = ({
   onToggleFavorite,
   category,
   bidCount,
-  lastBid
+  lastBid,
+  onPress
 }) => {
   const router = useRouter();
 
@@ -57,7 +59,7 @@ const AuctionCard: React.FC<AuctionCardProps> = ({
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
+    <TouchableOpacity style={styles.card} onPress={onPress || handlePress}>
       <Image source={{ uri: image }} style={styles.image} />
       <TouchableOpacity style={styles.favoriteIcon} onPress={onToggleFavorite}>
         <FontAwesome name={isFavorite ? 'heart' : 'heart-o'} size={20} color="red" />

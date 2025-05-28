@@ -670,7 +670,8 @@
         return;
     }
 
-    const auctions = await response.json();
+    const auctions = (await response.json())
+        .filter(auction => auction.is_active && auction.status === 'active');
 
     // 1. Aktif İlanlar sekmesindeki (X) sayısını güncelle
     const auctionsTab = document.getElementById('auctions-tab');
@@ -969,8 +970,21 @@ async function loadFavoriteProducts() {
         const progress = Math.max(0, Math.min(100, 100 * (1 - timeDiff / totalDuration)));
 
         let badge = '';
+        let progressBar = '';
+        let progressText = '';
         if (!auction.is_active) {
-            badge = `<span class="absolute top-2 left-2 bg-gray-700 text-white text-xs px-2 py-1 rounded">Zamanı Bitti</span>`;
+            if (auction.status === 'sold') {
+                badge = `<span class="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">Satıldı</span>`;
+                progressBar = `<div class="bg-indigo-600 h-2.5 rounded-full" style="width: 100%"></div>`;
+                progressText = `<span class="ml-2 text-sm text-gray-600">Tamamlandı</span>`;
+            } else {
+                badge = `<span class="absolute top-2 left-2 bg-gray-700 text-white text-xs px-2 py-1 rounded">Zamanı Bitti</span>`;
+                progressBar = `<div class="bg-indigo-600 h-2.5 rounded-full" style="width: 100%"></div>`;
+                progressText = `<span class="ml-2 text-sm text-gray-600">Tamamlandı</span>`;
+            }
+        } else {
+            progressBar = `<div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${progress.toFixed(0)}%"></div>`;
+            progressText = `<span class="ml-2 text-sm text-gray-600">${daysLeft} gün kaldı</span>`;
         }
 
         const card = `
@@ -993,9 +1007,9 @@ async function loadFavoriteProducts() {
                 <div class="mt-4">
                     <div class="flex items-center mb-2">
                         <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${progress.toFixed(0)}%"></div>
+                            ${progressBar}
                         </div>
-                        <span class="ml-2 text-sm text-gray-600">${daysLeft} gün kaldı</span>
+                        ${progressText}
                     </div>
                     <div class="flex justify-between items-center">
                         <div class="text-sm text-gray-500">

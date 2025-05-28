@@ -139,14 +139,8 @@ const VitrinScreen = () => {
 
   return (
     <FlatList
-      ListHeaderComponent={
-        <View style={{ padding: 16 }}>
-          <Text style={styles.header}>👋 Merhaba, {username || 'Kullanıcı'}!</Text>
-          <Text style={styles.subHeader}>📦 Son Eklenen Ürünler</Text>
-        </View>
-      }
       data={products}
-      keyExtractor={(item) => `auction-${item.id}`}
+      keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
       contentContainerStyle={{ paddingBottom: 100 }}
       onEndReached={() => fetchProducts(false)}

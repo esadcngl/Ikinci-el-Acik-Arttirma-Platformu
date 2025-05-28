@@ -458,63 +458,66 @@ const AuctionDetailScreen = () => {
       {activeTab === 'bids' ? (
         <>
           {/* Teklif Ver */}
-          {auction.is_active && auction.status === 'active' && 
+          {auction.is_active && auction.status === 'active' &&
           loginUsername !== auction.owner_username && (
-            <View style={styles.bidContainer}>
+            <View style={styles.inputCard}>
+              <Text style={styles.inputCardTitle}>Teklif Ver</Text>
               <TextInput
-                style={styles.input}
+                style={styles.modernInput}
                 placeholder="Teklif Tutarı (₺)"
+                placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 value={bidAmount}
                 onChangeText={setBidAmount}
               />
-              <TouchableOpacity style={styles.bidButton} onPress={submitBid}>
-                <Text style={styles.bidButtonText}>Teklif Ver</Text>
+              <TouchableOpacity style={styles.modernButton} onPress={submitBid}>
+                <Text style={styles.modernButtonText}>Teklif Ver</Text>
               </TouchableOpacity>
 
-              {auction.is_active && auction.status === 'active' && auction.buy_now_price && loginUsername !== auction.owner_username && (
-              <TouchableOpacity
-                style={[styles.bidButton, { backgroundColor: '#10b981', marginHorizontal: 16, marginTop: 10 }]}
-                onPress={handleBuyNow}
-              >
-                <Text style={styles.bidButtonText}>Hemen Satın Al ({formatCurrency(parseFloat(auction.buy_now_price))})</Text>
-              </TouchableOpacity>
-            )}
+              {auction.buy_now_price && parseFloat(auction.buy_now_price) > 0 && (
+                <TouchableOpacity
+                  style={[styles.modernButton, { backgroundColor: '#10b981', marginTop: 10 }]}
+                  onPress={handleBuyNow}
+                >
+                  <Text style={styles.modernButtonText}>Hemen Satın Al ({formatCurrency(parseFloat(auction.buy_now_price))})</Text>
+                </TouchableOpacity>
+              )}
             </View>
-            
           )}
 
           {/* Teklifler Listesi */}
           {bids.length === 0 ? (
-            <Text style={{ color: '#9ca3af', marginTop: 10 }}>Henüz teklif yok.</Text>
+            <Text style={{ color: '#9ca3af', marginTop: 10, paddingHorizontal: 16 }}>Henüz teklif yok.</Text>
           ) : (
             bids.filter(b => b.status).map((bid) => (
-              <View key={bid.id} style={[styles.bidItem, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
-                <Text>{bid.user_username}: {parseFloat(bid.amount).toLocaleString()} ₺</Text>
-                
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View key={bid.id} style={styles.bidItemCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <Text style={styles.bidUsername}>{bid.user_username}</Text>
+                  <View style={[styles.statusBadgeNew, getStatusStyle(bid.status)]}>
+                    <Text style={styles.statusBadgeTextNew}>{getStatusText(bid.status)}</Text>
+                  </View>
+                </View>
+                <Text style={styles.bidAmount}>{parseFloat(bid.amount).toLocaleString('tr-TR')} ₺</Text>
+
+                <View style={{ flexDirection: 'row', marginTop: 10 }}>
                   {manageBids && loginUsername === auction.owner_username && bid.status === 'pending' && (
                     <>
-                      <TouchableOpacity style={[styles.smallButton, { backgroundColor: '#22c55e' }]} onPress={() => acceptBid(bid.id)}>
-                        <Text style={styles.smallButtonText}>Kabul Et</Text>
+                      <TouchableOpacity style={[styles.smallButtonNew, { backgroundColor: '#22c55e', marginRight: 8 }]} onPress={() => acceptBid(bid.id)}>
+                        <Text style={styles.smallButtonTextNew}>Kabul Et</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={[styles.smallButton, { backgroundColor: '#ef4444', marginLeft: 10 }]} onPress={() => rejectBid(bid.id)}>
-                        <Text style={styles.smallButtonText}>Reddet</Text>
+                      <TouchableOpacity style={[styles.smallButtonNew, { backgroundColor: '#ef4444' }]} onPress={() => rejectBid(bid.id)}>
+                        <Text style={styles.smallButtonTextNew}>Reddet</Text>
                       </TouchableOpacity>
                     </>
                   )}
-
                   {loginUsername === bid.user_username && bid.status === 'pending' && (
                     <TouchableOpacity
-                      style={[styles.smallButton, { backgroundColor: '#f59e0b', marginLeft: 10 }]}
+                      style={[styles.smallButtonNew, { backgroundColor: '#f59e0b' }]}
                       onPress={() => cancelBid(bid.id)}
                     >
-                      <Text style={styles.smallButtonText}>İptal Et</Text>
+                      <Text style={styles.smallButtonTextNew}>İptal Et</Text>
                     </TouchableOpacity>
                   )}
-                </View>
-                <View style={[styles.statusBadge, getStatusStyle(bid.status)]}>
-                  <Text style={styles.statusBadgeText}>{getStatusText(bid.status)}</Text>
                 </View>
               </View>
             ))
@@ -523,28 +526,32 @@ const AuctionDetailScreen = () => {
       ) 
     : activeTab === 'comments' && (
         <>
+          {/* Yorum Yaz */}
           {auction.is_active && (
-            <>
+            <View style={styles.inputCard}>
+              <Text style={styles.inputCardTitle}>Yorum Yaz</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.modernInput, { minHeight: 60 }]}
                 placeholder="Yorumunuzu yazın..."
+                placeholderTextColor="#9ca3af"
+                multiline
                 value={commentText}
                 onChangeText={setCommentText}
               />
-              <TouchableOpacity style={styles.bidButton} onPress={submitComment}>
-                <Text style={styles.bidButtonText}>Gönder</Text>
+              <TouchableOpacity style={styles.modernButton} onPress={submitComment}>
+                <Text style={styles.modernButtonText}>Gönder</Text>
               </TouchableOpacity>
-            </>
+            </View>
           )}
       
           {/* Yorumlar Listesi */}
           {comments.length === 0 ? (
-            <Text style={{ color: '#9ca3af', marginTop: 10 }}>Henüz yorum yok.</Text>
+            <Text style={{ color: '#9ca3af', marginTop: 10, paddingHorizontal: 16 }}>Henüz yorum yok.</Text>
           ) : (
             comments.map((comment) => (
-              <View key={comment.id} style={styles.bidItem}>
-                <Text style={{ fontWeight: 'bold' }}>{comment.user}</Text>
-                <Text>{comment.text}</Text>
+              <View key={comment.id} style={styles.commentItemCard}>
+                <Text style={styles.commentUsername}>{comment.user}</Text>
+                <Text style={styles.commentText}>{comment.text}</Text>
               </View>
             ))
           )}
@@ -809,6 +816,107 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff', // Hata durumu için de arka plan
+  },
+  inputCard: {
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    marginHorizontal: 16,
+  },
+  inputCardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#374151',
+    marginBottom: 12,
+  },
+  modernInput: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+    color: '#1f2937',
+  },
+  modernButton: {
+    backgroundColor: '#4f46e5',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modernButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  bidItemCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 10,
+    marginHorizontal: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  bidUsername: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: '#1f2937',
+  },
+  bidAmount: {
+    fontSize: 14,
+    color: '#4f46e5',
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
+  statusBadgeNew: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  statusBadgeTextNew: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  smallButtonNew: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  smallButtonTextNew: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  commentItemCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 10,
+    marginHorizontal: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  commentUsername: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  commentText: {
+    fontSize: 14,
+    color: '#374151',
+    lineHeight: 20,
   },
   // ... Diğer stilleriniz burada devam eder
 });

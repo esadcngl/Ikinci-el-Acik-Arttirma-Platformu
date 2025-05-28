@@ -4,7 +4,7 @@ import { NotificationProvider } from './context/NotificationContext';
 export default function RootLayout() {
   return (
     <NotificationProvider>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }} />
     </NotificationProvider>
   );
 }
