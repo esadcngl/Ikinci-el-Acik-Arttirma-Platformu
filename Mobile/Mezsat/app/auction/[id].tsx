@@ -178,7 +178,43 @@ const AuctionDetailScreen = () => {
       console.error('İptal etme hatası:', error);
     }
   };
-
+  const handleBuyNow = async () => {
+    const token = await AsyncStorage.getItem('access');
+    if (!token) return;
+  
+    try {
+      // 1. Satın alma başlat
+      const res = await fetch(`http://192.168.0.4:8000/api/auctions/${id}/buy-now/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (!res.ok) {
+        const err = await res.json();
+        Alert.alert("Hata", err.detail || "Satın alma başlatılamadı.");
+        return;
+      }
+  
+      // 2. Ödeme işlemini tamamla
+      const paymentRes = await fetch(`http://192.168.0.4:8000/api/auctions/${id}/complete-payment/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (paymentRes.ok) {
+        Alert.alert("Başarılı", "Ürün başarıyla satın alındı.");
+        fetchAuction();
+        fetchBids();
+      } else {
+        const err = await paymentRes.json();
+        Alert.alert("Hata", err.detail || "Ödeme tamamlanamadı.");
+      }
+    } catch (err) {
+      console.error("Satın alma hatası:", err);
+      Alert.alert("Sunucuya ulaşılamadı.");
+    }
+  };
+  
   const deleteAuction = async () => {
     Alert.alert('İlanı Sil', 'Emin misiniz?', [
       { text: 'İptal', style: 'cancel' },
@@ -207,7 +243,35 @@ const AuctionDetailScreen = () => {
     fetchComments();
     fetchUsername();
   }, [id]);
-
+  useEffect(() => {
+    const ws = new WebSocket(`ws://192.168.0.4:8000/ws/auctions/${id}/`);
+  
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("📡 WS mesajı:", data);
+      if (data.type === 'new_bid' || data.type === 'broadcast_bid') {
+        if (data.type === 'auction_sold') {
+          Alert.alert("Satıldı", "Bu ilan başka biri tarafından satın alındı.");
+          fetchAuction();
+          fetchBids();
+        }
+        const newBid = data.bid;
+      
+        setBids((prev) => {
+          const index = prev.findIndex((b) => b.id === newBid.id);
+          if (index !== -1) {
+            const updated = [...prev];
+            updated[index] = { ...updated[index], ...newBid };
+            return updated;
+          }
+          return [newBid, ...prev];
+        });
+        fetchAuction();
+      }
+    };
+  
+    return () => ws.close();
+  }, [id]);
   // Helper function to format currency
   const formatCurrency = (amount: number | null | undefined) => {
     if (amount === null || amount === undefined || isNaN(amount)) return 'N/A';
@@ -394,7 +458,8 @@ const AuctionDetailScreen = () => {
       {activeTab === 'bids' ? (
         <>
           {/* Teklif Ver */}
-          {auction.is_active && auction.status === 'active' && (
+          {auction.is_active && auction.status === 'active' && 
+          loginUsername !== auction.owner_username && (
             <View style={styles.bidContainer}>
               <TextInput
                 style={styles.input}
@@ -406,7 +471,17 @@ const AuctionDetailScreen = () => {
               <TouchableOpacity style={styles.bidButton} onPress={submitBid}>
                 <Text style={styles.bidButtonText}>Teklif Ver</Text>
               </TouchableOpacity>
+
+              {auction.is_active && auction.status === 'active' && auction.buy_now_price && loginUsername !== auction.owner_username && (
+              <TouchableOpacity
+                style={[styles.bidButton, { backgroundColor: '#10b981', marginHorizontal: 16, marginTop: 10 }]}
+                onPress={handleBuyNow}
+              >
+                <Text style={styles.bidButtonText}>Hemen Satın Al ({formatCurrency(parseFloat(auction.buy_now_price))})</Text>
+              </TouchableOpacity>
+            )}
             </View>
+            
           )}
 
           {/* Teklifler Listesi */}
@@ -445,19 +520,23 @@ const AuctionDetailScreen = () => {
             ))
           )}
         </>
-      ) : activeTab === 'comments' && (
+      ) 
+    : activeTab === 'comments' && (
         <>
-          {/* Yorum Yap */}
-          <TextInput
-            style={styles.input}
-            placeholder="Yorumunuzu yazın..."
-            value={commentText}
-            onChangeText={setCommentText}
-          />
-          <TouchableOpacity style={styles.bidButton} onPress={submitComment}>
-            <Text style={styles.bidButtonText}>Gönder</Text>
-          </TouchableOpacity>
-
+          {auction.is_active && (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Yorumunuzu yazın..."
+                value={commentText}
+                onChangeText={setCommentText}
+              />
+              <TouchableOpacity style={styles.bidButton} onPress={submitComment}>
+                <Text style={styles.bidButtonText}>Gönder</Text>
+              </TouchableOpacity>
+            </>
+          )}
+      
           {/* Yorumlar Listesi */}
           {comments.length === 0 ? (
             <Text style={{ color: '#9ca3af', marginTop: 10 }}>Henüz yorum yok.</Text>

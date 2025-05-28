@@ -113,16 +113,27 @@ const VitrinScreen = () => {
       console.error('Favori işlemi başarısız:', err);
     }
   };
-
+  const calculateProgress = (endTime: string): number => {
+    const now = new Date();
+    const end = new Date(endTime);
+    const totalDuration = (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24); // gün cinsinden
+    const maxDays = 30; // örnek: maksimum 30 gün üzerinden hesapla
+    const usedPercent = 100 - Math.min((totalDuration / maxDays) * 100, 100);
+    return usedPercent;
+  };
   const renderItem = ({ item }: any) => (
     <AuctionCard
       id={item.id}
       image={item.image || 'https://via.placeholder.com/300x200'}
       title={item.title}
-      endTime={new Date(item.end_time).toLocaleDateString('tr-TR')}
+      endTime={item.end_time}
       price={parseFloat(item.starting_price)}
       isFavorite={item.is_favorite}
+      category={item.category_name}
+      bidCount={item.bid_count}
+      lastBid={item.last_bid}
       onToggleFavorite={() => toggleFavorite(item.id)}
+    
     />
   );
 
@@ -219,6 +230,18 @@ const styles = StyleSheet.create({
     color: '#4f46e5',
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  progressBackground: {
+    height: 6,
+    backgroundColor: '#e5e7eb', // gri
+    borderRadius: 3,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: '#4f46e5', // indigo
+    borderRadius: 3,
   },
 });
 

@@ -1,8 +1,9 @@
 from django.db import IntegrityError
 from rest_framework import generics, permissions
+from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import PermissionDenied
-from .models import Bid, Auction , Comment , Favorite , Category
-from .serializers import BidSerializer , AuctionSerializer , CommentSerializer , FavoriteSerializer ,CategorySerializer
+from .models import Bid, Auction , Comment , Favorite , Category , Notification
+from .serializers import BidSerializer , AuctionSerializer , CommentSerializer , FavoriteSerializer ,BalanceAddSerializer,CategorySerializer , NotificationSerializer
 from rest_framework.permissions import IsAdminUser
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
@@ -15,6 +16,10 @@ from decimal import Decimal
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from .utils import create_notification
+
 import random
 class BidCreateView(generics.CreateAPIView):
     serializer_class = BidSerializer
@@ -46,6 +51,21 @@ class BidCreateView(generics.CreateAPIView):
             auction.save()
 
         serializer.save(auction=auction, user=user)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"auction_{auction.id}",
+                {
+                "type": "broadcast_bid",
+                "bid": BidSerializer(serializer.instance).data
+                }
+            )
+        # Bildirim: İlan sahibine
+        if auction.owner != self.request.user:
+            create_notification(
+                auction.owner,
+                f"📈 {self.request.user.username} teklif verdi: {amount} TL",
+                f"/auctions/{auction.id}/"
+            )
 
 class BidListView(generics.ListAPIView):
     serializer_class = BidSerializer
@@ -85,7 +105,42 @@ class AcceptBidView(APIView):
 
         seller.balance += bid.amount
         seller.save()
+        # Diğer pending teklifleri iptal et
+        other_pending_bids = Bid.objects.filter(auction=auction, status='pending').exclude(pk=bid.pk)
+        for other_bid in other_pending_bids:
+            other_bid.status = 'cancelled'
+            other_bid.save()
 
+            other_user = other_bid.user
+            other_user.blocked_balance -= other_bid.amount
+            other_user.balance += other_bid.amount
+            other_user.save()
+            channel_layer = get_channel_layer()
+            # WebSocket yayını
+            async_to_sync(channel_layer.group_send)(
+                f"auction_{auction.id}",
+                {
+                    "type": "broadcast_bid",
+                    "bid": BidSerializer(other_bid).data
+                }
+            )
+
+            # Bildirim gönder
+            create_notification(
+                other_user,
+                "❌ Teklifiniz iptal edildi. Ürün başka bir kullanıcıya satıldı.",
+                f"/auctions/{auction.id}/"
+            )
+        create_notification(buyer, "🎉 Teklifiniz kabul edildi!", f"/auctions/{auction.id}/")
+        create_notification(seller, f"💰 {buyer.username} ürünü satın aldı.", f"/auctions/{auction.id}/")
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"auction_{bid.auction.id}",
+            {
+            "type": "broadcast_bid",
+            "bid": BidSerializer(bid).data
+            }
+        )
         return Response({"detail": "Teklif kabul edildi ve ödeme başarıyla gerçekleşti."}, status=200)
 
 class RejectBidView(APIView):
@@ -108,7 +163,15 @@ class RejectBidView(APIView):
         user.blocked_balance -= bid.amount
         user.balance += bid.amount
         user.save()
-
+        create_notification(bid.user, "❌ Teklifiniz reddedildi.", f"/auctions/{bid.auction.id}/")
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"auction_{bid.auction.id}",
+            {
+            "type": "broadcast_bid",
+            "bid": BidSerializer(bid).data
+            }
+        )
         return Response({"detail": "Teklif reddedildi ve bakiye iade edildi."}, status=200)
     
 class CancelBidView(APIView):
@@ -136,8 +199,16 @@ class CancelBidView(APIView):
         user.blocked_balance -= bid.amount
         user.balance += bid.amount
         user.save()
-
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"auction_{bid.auction.id}",
+            {
+            "type": "broadcast_bid",
+            "bid": BidSerializer(bid).data
+            }
+        )
         return Response({"detail": "Teklif iptal edildi ve bakiye geri yüklendi."}, status=status.HTTP_200_OK)
+    
 class AuctionCreateView(generics.CreateAPIView):
     queryset = Auction.objects.all()
     serializer_class = AuctionSerializer
@@ -158,6 +229,9 @@ class AuctionListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Auction.objects.filter(status='active', is_active=True)
+    
+    def get_serializer_context(self):
+        return {"request": self.request}
     
 class AuctionDetailView(generics.RetrieveAPIView):
     queryset = Auction.objects.all()
@@ -203,7 +277,13 @@ class CommentCreateView(generics.CreateAPIView):
             raise serializers.ValidationError("Bu ilana yorum yapılamaz. İlan satıldı.")
 
         serializer.save(user=self.request.user, auction=auction)
-    
+        # Bildirim: İlan sahibine (kendine yorum yapmadıysa)
+        if auction.owner != self.request.user:
+            create_notification(
+                auction.owner,
+                f"💬 {self.request.user.username} ilanınıza yorum yaptı",
+                f"/auctions/{auction.id}/"
+            )
 class CommentListView(generics.ListAPIView):
     serializer_class = CommentSerializer
 
@@ -317,17 +397,57 @@ class CompletePaymentView(APIView):
         if auction.status != 'pending_payment':
             return Response({"detail": "Bu ilanın ödeme süreci aktif değil."}, status=400)
 
-        # Ödeme tamamlandı simülasyonu
+            
+        buyer = request.user
+        seller = auction.owner
+        buy_now_price = auction.buy_now_price
+
+        if buyer.balance < buy_now_price:
+            return Response({"detail": "Yetersiz bakiye."}, status=400)
+        # Teklifleri iptal et
+        pending_bids = auction.bids.filter(status='pending')
+        for bid in pending_bids:
+            bid.status = 'cancelled'
+            bid.save()
+
+            # Kullanıcının bakiyesini geri ver
+            bid.user.blocked_balance -= bid.amount
+            bid.user.balance += bid.amount
+            bid.user.save()    
+
+             # WebSocket ile güncelle
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"auction_{auction.id}",
+                {
+                    "type": "broadcast_bid",
+                    "bid": BidSerializer(bid).data
+                }
+            )
+            async_to_sync(channel_layer.group_send)(
+                f"auction_{auction.id}",
+                {
+                    "type": "broadcast_auction_sold",
+                    "auction_id": auction.id
+                }
+            )
+        # Satıcıya para aktar
+        buyer.balance -= buy_now_price
+        seller.balance += buy_now_price
+        buyer.save()
+        seller.save()
+        # İlanı kapat
         auction.status = 'sold'
         auction.is_active = False
         auction.save()
-
+        create_notification(buyer, "✅ Satın alma işleminiz tamamlandı!", f"/auctions/{auction.id}/")
+        create_notification(seller, f"📦 Ürününüz {buyer.username} tarafından satın alındı.", f"/auctions/{auction.id}/")
         return Response({"detail": "Satın alma tamamlandı. İlan kapatıldı."})
-    
+            
 @api_view(['GET'])
 def category_list_api(request):
     # Ana kategoriler (parent'ı olmayanlar)
-    categories = Category.objects.filter(parent__isnull=True).order_by('name')
+    categories = Category.objects.filter(parent__isnull=True).order_by('id') 
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
 
@@ -360,3 +480,51 @@ def predict_view(request):
         "predicted_category": categories[idx],
         "predicted_price": price_ranges[idx]
     })
+
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_notification_as_read(request, notification_id):
+    try:
+        notification = request.user.notifications.get(pk=notification_id)
+        notification.is_read = True
+        notification.save()
+        return Response({"detail": "Okundu olarak işaretlendi."})
+    except Notification.DoesNotExist:
+        return Response({"detail": "Bildirim bulunamadı."}, status=404)
+    
+class NotificationListView(ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_all_notifications_read(request):
+    notifications = request.user.notifications.filter(is_read=False)
+    updated_count = notifications.update(is_read=True)
+    return Response({"detail": f"{updated_count} bildirim okundu olarak işaretlendi."})
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def clear_notifications(request):
+    deleted_count, _ = request.user.notifications.all().delete()
+    return Response({"detail": f"{deleted_count} bildirim silindi."})
+
+class AddBalanceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BalanceAddSerializer(data=request.data)
+        if serializer.is_valid():
+            amount = serializer.validated_data['amount']
+            user = request.user
+            user.balance += amount
+            user.save()
+            return Response({
+                "detail": "Bakiye başarıyla eklendi.",
+                "balance": str(user.balance)
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

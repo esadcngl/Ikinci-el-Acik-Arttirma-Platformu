@@ -6,16 +6,14 @@ import { useRouter } from 'expo-router';
 const categories = [
   { id: 1, name: 'Elektronik', icon: 'laptop' },
   { id: 2, name: 'Moda', icon: 'tshirt' },
-  { id: 3, name: 'Kitap', icon: 'book' },
-  { id: 4, name: 'Mobilya', icon: 'couch' },
+  { id: 3, name: 'Ev & Yasam', icon: 'home' },
+  { id: 4, name: 'Otomobil & Yedek Parça', icon: 'car' },
   { id: 5, name: 'Spor', icon: 'running' },
-  { id: 6, name: 'Koleksiyon', icon: 'chess-queen' },
-  { id: 7, name: 'Otomotiv', icon: 'car' },
-  { id: 8, name: 'Ev & Yaşam', icon: 'home' },
-  { id: 9, name: 'Anne & Bebek', icon: 'baby' },
-  { id: 10, name: 'Müzik', icon: 'music' },
-  { id: 11, name: 'Film & Dizi', icon: 'film' },
-  { id: 12, name: 'Diğer', icon: 'ellipsis-h' },
+  { id: 6, name: 'Antika', icon: 'chess-queen' },
+  { id: 7, name: 'El Sanatları', icon: 'palette' },
+  { id: 8, name: 'Kitap , Film & Müzik', icon: 'book' },
+  { id: 9, name: 'Hobi & Oyuncak', icon: 'baby' },
+  { id: 10, name: 'Diğer', icon: 'ellipsis-h' },
 ];
 
 const CategoriesScreen = () => {

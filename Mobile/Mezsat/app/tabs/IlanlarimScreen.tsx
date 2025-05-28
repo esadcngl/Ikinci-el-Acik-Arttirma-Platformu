@@ -66,8 +66,9 @@ export default function IlanlarimScreen() {
 
 
   const filteredListings = listings.filter((item) => {
+    const now = new Date();
     if (activeTab === 'active') return item.status === 'active';
-    if (activeTab === 'expired') return item.is_active === false && item.status !== 'sold';
+    if (activeTab === 'expired') return !item.is_active && item.status !== 'sold' && new Date(item.end_time) < now;
     if (activeTab === 'sold') return item.status === 'sold';
     return true;
   });
@@ -105,9 +106,12 @@ export default function IlanlarimScreen() {
               <Text style={styles.title}>{item.title}</Text>
               <Text>{parseFloat(item.starting_price).toLocaleString()} ₺</Text>
               {/* İlan durumunu göstermek isterseniz: */}
-              {/* <Text style={{ color: item.status === 'sold' ? 'green' : item.is_active ? 'blue' : 'red' }}>
-                Durum: {item.status === 'sold' ? 'Satıldı' : item.is_active ? 'Aktif' : 'Bitti'}
-              </Text> */}
+              {/* <Text style={{ 
+              color: item.status === 'sold' ? 'green' : item.is_active ? '#4f46e5' : 'red',
+            fontWeight: 'bold'
+              }}>
+            {item.status === 'sold' ? 'Satıldı' : item.is_active ? 'Aktif' : 'Bitti'}
+          </Text> */}
             </TouchableOpacity>
           )}
           contentContainerStyle={{ padding: 16 }}

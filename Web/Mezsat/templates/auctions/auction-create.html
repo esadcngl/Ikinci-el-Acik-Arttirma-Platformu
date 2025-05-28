@@ -69,8 +69,8 @@
                 </div>
                 <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
                     <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
-                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
-                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
+                    <a href="/kategoriler/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="/#how-it-works" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
                     <div class="flex items-center space-x-4">
                         <div class="relative group">
                             <button id="user-menu-button" class="flex items-center space-x-1 text-gray-700 hover:text-indigo-600 w-28">
@@ -81,7 +81,7 @@
                                 <a href="/profile/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
                                     <i class="fas fa-user mr-2"></i> Profilim
                                 </a>
-                                <a href="/favorites/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                                <a href="/favorite/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
                                     <i class="fas fa-heart mr-2"></i> Favorilerim
                                 </a>
                                 <a href="/auctions/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
@@ -92,9 +92,6 @@
                                 </a>
                             </div>
                         </div>
-                        <a href="create-listing.html" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-                            <i class="fas fa-plus mr-1"></i> İlan Ver
-                        </a>
                     </div>
                 </div>
                 <div class="-mr-2 flex items-center md:hidden">
@@ -453,75 +450,7 @@
         }
     });
 
-document.querySelector('form').addEventListener('submit', async function(e) {
-    e.preventDefault();
 
-    const formData = new FormData();
-    formData.append('title', document.getElementById('title').value);
-    formData.append('description', document.getElementById('description').value);
-    formData.append('starting_price', document.getElementById('starting-price').value);
-    formData.append('buy_now_price', document.getElementById('buy-now-price').value || null);
-    formData.append('end_time', document.getElementById('end-date').value);
-    formData.append('category', document.getElementById('category').value);
-
-    const imageFile = document.getElementById('file-input').files[0];
-    if (imageFile) {
-        formData.append('image', imageFile);
-    }
-
-    const token = localStorage.getItem("access"); // veya cookie içinden çek
-
-    if (!token) {
-        alert("Giriş yapmanız gerekiyor.");
-        return;
-    }
-
-    try {
-        const response = await fetch("/api/auctions/create/", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            },
-            body: formData
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            alert("Hata oluştu: " + (error.detail || "Bilinmeyen hata"));
-            return;
-        }
-
-        const result = await response.json();
-        alert("İlan başarıyla oluşturuldu!");
-        window.location.href = `/auctions/${result.id}/`; // detay sayfasına yönlendir
-
-    } catch (error) {
-        alert("Sunucu hatası: " + error.message);
-    }
-});
-
-        // Apply predictions to form
-       applyPredictions.addEventListener('click', function () {
-            const categoryText = predictedCategory.textContent.split('>')[0].trim();
-
-            // Kategori eşleşmesi
-            for (let i = 0; i < categorySelect.options.length; i++) {
-                if (categorySelect.options[i].textContent.toLowerCase().includes(categoryText.toLowerCase())) {
-                    categorySelect.selectedIndex = i;
-                    break;
-                }
-            }
-
-            // ₺4 - ₺1.150.000 (ort: ₺487.414) → ortalama ayıklama
-            const priceMatch = predictedPrice.textContent.match(/ort: ₺([\d.,]+)/i);
-            if (priceMatch) {
-                const avgPrice = parseInt(priceMatch[1].replace(/\D/g, ''));
-                startingPriceInput.value = Math.round(avgPrice * 0.8);
-                buyNowPriceInput.value = avgPrice;
-            }
-
-            alert("Tahminler formunuza uygulandı!");
-        });
 
         document.querySelector('form').addEventListener('submit', async function(e) {
     e.preventDefault();

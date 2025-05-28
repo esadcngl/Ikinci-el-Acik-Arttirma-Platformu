@@ -78,8 +78,8 @@
                 </div>
                 <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
                     <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
-                    <a href="/categories/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
-                    <a href="/how-it-works/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
+                    <a href="/kategoriler/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="/#how-it-works/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
                     <div id="auth-buttons">
                         <!-- Will be filled by JavaScript -->
                     </div>
@@ -96,7 +96,7 @@
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Ana Sayfa</a>
-                <a href="/categories/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
+                <a href="/kategoriler/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Kategoriler</a>
                 <a href="/how-it-works/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Nasıl Çalışır?</a>
                 <div id="mobile-auth-buttons" class="pt-2">
                     <!-- Will be filled by JavaScript -->
@@ -105,7 +105,7 @@
         </div>
     </nav>
 <!-- Kategori Menüsü -->
-<div id="category-menu" class="bg-white shadow overflow-x-auto whitespace-nowrap py-3 px-4">
+<div id="category-menu" class="bg-white shadow overflow-x-hidden whitespace-nowrap py-3 px-2">
   <a href="#" class="inline-block text-gray-700 font-medium mr-6">Tüm Kategoriler</a>
   <!-- Örnek kategoriler buraya JS ile eklenecek -->
 </div>
@@ -113,22 +113,29 @@
     <div class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col">
-                <h1 class="text-2xl font-bold text-gray-900 text-center mb-4">Tüm İlanlar</h1>
-                <div class="search-container">
-                    <div class="relative rounded-md shadow-sm">
+                <h1 class="text-2xl font-bold text-gray-900 text-center mb-4">
+                    {{ title|default:"Tüm İlanlar" }}           </h1>
+                <!-- Üst Arama ve Sıralama Alanı -->
+                <div class="flex justify-center gap-4 items-center flex-wrap my-4">
+                    <!-- Arama Kutusu -->
+                    <div class="relative w-full sm:w-80">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
-                        <input type="text" id="search-input" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 py-2 border-gray-300 rounded-md" placeholder="Ürün ara...">
-                        <div class="absolute inset-y-0 right-0 flex items-center">
-                            <select id="sort-select" class="focus:ring-indigo-500 focus:border-indigo-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 rounded-md">
-                                <option value="newest">En Yeni</option>
-                                <option value="ending">Yakında Bitecek</option>
-                                <option value="price-low">Fiyat (Düşük)</option>
-                                <option value="price-high">Fiyat (Yüksek)</option>
-                                <option value="popular">Popüler</option>
-                            </select>
-                        </div>
+                        <input type="text" id="search-input" placeholder="Ürün ara..."  value="{{ search_query|default:'' }}"
+                            class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                
+                    <!-- Sıralama Dropdown -->
+                    <div class="w-full sm:w-60">
+                        <select id="sort-select"
+                            class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="newest" {% if sort == "newest" %}selected{% endif %}>En Yeni</option>
+                            <option value="ending" {% if sort == "ending" %}selected{% endif %}>Yakında Bitecek</option>
+                            <option value="price-low"{% if sort == "price-low" %}selected{% endif %}>Fiyat (Düşük)</option>
+                            <option value="price-high"{% if sort == "price-high" %}selected{% endif %}>Fiyat (Yüksek)</option>
+                            <option value="popular"{% if sort == "popular" %}selected{% endif %}>Popüler</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -155,9 +162,9 @@
                     <div class="mb-6">
                         <h4 class="text-sm font-medium text-gray-700 mb-2">Fiyat Aralığı</h4>
                         <div class="flex items-center space-x-2 mb-2">
-                            <input type="number" id="min-price" placeholder="Min" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm">
+                            <input type="number" id="min-price" value="{{ min_price|default:'' }}" placeholder="Min" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm">
                             <span>-</span>
-                            <input type="number" id="max-price" placeholder="Max" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm">
+                            <input type="number" id="max-price" value="{{ max_price|default:'' }}" placeholder="Max" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm">
                         </div>
                         <button id="apply-price" class="w-full bg-indigo-600 text-white py-1 px-2 rounded-md text-sm hover:bg-indigo-700 transition">
                             Uygula
@@ -172,11 +179,13 @@
                 <div id="active-filters" class="mb-4 flex flex-wrap gap-2">
                     <!-- Active filters will be added here -->
                 </div>
-                
+                {{ auctions_data|json_script:"auction-data" }}
                 <!-- Auction Grid -->
                 <div id="auctions-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     <!-- Auction cards will be added by JavaScript -->
-                    {% for auction in listings %}
+                    {% for auction in auctions %}
+                    
+
     <div class="card-hover bg-white rounded-lg shadow overflow-hidden transition duration-300">
         <div class="relative pb-2/3 h-48">
             <img class="absolute h-full w-full object-cover" src="{{ auction.image.url }}" alt="{{ auction.title }}">
@@ -210,32 +219,25 @@
                 
                 <!-- Pagination -->
                 <div class="mt-8 flex justify-center">
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Previous</span>
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            1
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            2
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            3
-                        </a>
-                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                            ...
-                        </span>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            8
-                        </a>
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Next</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
+                    <nav class="inline-flex space-x-1">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}"
+                            class="px-3 py-1 bg-white border rounded hover:bg-gray-100">&laquo; Geri</a>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="px-3 py-1 bg-indigo-500 text-white rounded">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <a href="?page={{ num }}"
+                            class="px-3 py-1 bg-white border rounded hover:bg-gray-100">{{ num }}</a>
+                            {% endif %}
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}"
+                                class="px-3 py-1 bg-white border rounded hover:bg-gray-100">İleri &raquo;</a>
+                            {% endif %}
                     </nav>
                 </div>
+
             </div>
         </div>
     </div>
@@ -290,12 +292,11 @@
             </div>
         </div>
     </footer>
-
     <script>
         // Check if user is logged in (has token)
         const token = localStorage.getItem('access');
         const isLoggedIn = !!token;
-        
+        const auctions = JSON.parse(document.getElementById('auction-data').textContent);
         // Sample data for categories
         const categories = [
             { id: 1, name: 'Elektronik', icon: 'fa-laptop', count: 1245 },
@@ -341,7 +342,7 @@
                                     <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap</a>
                                 </div>
                             </div>
-                            <a href="/create-listing/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                            <a href="/create/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
                                 <i class="fas fa-plus mr-1"></i> İlan Ver
                             </a>
                         </div>
@@ -492,12 +493,11 @@
                 auctionElement.innerHTML = `
                     <div class="relative pb-2/3 h-48">
                         <img class="absolute h-full w-full object-cover" src="${auction.image}" alt="${auction.title}">
-                        <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md ${auction.isFavorite ? 'text-red-500' : 'text-gray-400'} hover:text-red-500 transition favorite-btn" data-id="${auction.id}">
+                        ${isLoggedIn ? `
+                        <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md ${auction.is_favorite ? 'text-red-500' : 'text-gray-400'} hover:text-red-500 transition favorite-btn" data-id="${auction.id}">
                             <i class="fas fa-heart"></i>
                         </button>
-                        ${auction.condition === 'Sıfır' ? 
-                            `<span class="absolute top-2 left-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">${auction.condition}</span>` : 
-                            `<span class="absolute top-2 left-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">${auction.condition}</span>`}
+                        ` : ''}
                     </div>
                     <div class="p-4">
                         <div class="flex justify-between items-start">
@@ -514,14 +514,14 @@
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
                                     <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${auction.progress}%"></div>
                                 </div>
-                                <span class="ml-2 text-sm text-gray-600">${auction.daysLeft} gün kaldı</span>
+                                <span class="ml-2 text-sm text-gray-600">${auction.days_left} gün kaldı</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <div>
                                     <span class="text-sm font-medium text-gray-900">${auction.bids} teklif</span>
-                                    <span class="text-sm text-gray-500 ml-2">(Son teklif: ${auction.lastBid.toLocaleString()} ₺)</span>
+                                    <span class="text-sm text-gray-500 ml-2">(Son teklif: ${auction.last_bid} ₺)</span>
                                 </div>
-                                <a href="/listing/${auction.id}/" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
+                                <a href="/auctions/${auction.id}/" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition">
                                     Detay
                                 </a>
                             </div>
@@ -548,6 +548,27 @@
                     }, 800);
                     
                     // Here you would typically make an API call to add/remove from favorites
+                    // Favori toggle API isteği
+                    fetch(`/api/auctions/${productId}/favorite/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('access')}`
+                        },
+                        body: JSON.stringify({})
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Favori işleminde hata");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Favori güncellendi:", data);
+                        })
+                        .catch(err => {
+                            console.error("Favori API hatası:", err);
+                        });
                     console.log(`Toggled favorite status for product ${productId}`);
                 });
             });
@@ -711,18 +732,47 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(res => res.json())
         .then(data => renderCategoriesMenu(data));
 });
+    function updateURL() {
+        const search = document.getElementById("search-input").value;
+        const sort = document.getElementById("sort-select").value;
+        const minPrice = document.getElementById("min-price").value;
+        const maxPrice = document.getElementById("max-price").value;
 
-function renderCategoriesMenu(categories) {
-    const menu = document.getElementById('category-menu');
+        const params = new URLSearchParams();
+        if (search) params.append("search", search);
+        if (sort) params.append("sort", sort);
+        if (minPrice) params.append("min_price", minPrice);
+        if (maxPrice) params.append("max_price", maxPrice);
 
-    categories.forEach(cat => {
-        const link = document.createElement('a');
-        link.href = `/kategoriler/${cat.slug}/`;
-        link.className = "inline-block text-gray-600 hover:text-indigo-600 font-medium mr-6";
-        link.textContent = cat.name;
-        menu.appendChild(link);
-    });
-}
+        window.location.href = window.location.pathname + "?" + params.toString();
+    }
+    document.getElementById("search-input").addEventListener("input", debounce(updateURL, 800));
+    document.getElementById("sort-select").addEventListener("change", updateURL);
+    document.getElementById("apply-price").addEventListener("click", updateURL);
+    function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+    function renderCategoriesMenu(categories) {
+        const menu = document.getElementById('category-menu');
+        menu.innerHTML = '';  // tekrarları önle
+        const allLink = document.createElement('a');
+        allLink.href = "/kategoriler/";
+        allLink.className = "inline-block text-gray-700 font-medium mr-6";
+        allLink.textContent = "Tüm Kategoriler";
+        menu.appendChild(allLink);
+
+        categories.forEach(cat => {
+            const link = document.createElement('a');
+            link.href = `/kategoriler/${cat.slug}/`;
+            link.className = "inline-block text-gray-600 hover:text-indigo-600 font-medium mr-6";
+            link.textContent = cat.name;
+            menu.appendChild(link);
+        });
+    }
 function renderSidebarCategories(categories) {
     const container = document.getElementById('categories-filter');
     container.innerHTML = ''; // Öncekileri temizle

@@ -57,8 +57,8 @@
                 </div>
                 <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
                     <a href="/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Ana Sayfa</a>
-                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
-                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
+                    <a href="/kategoriler/" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Kategoriler</a>
+                    <a href="/#how-it-works" class="px-3 py-2 text-gray-700 hover:text-indigo-600 transition">Nasıl Çalışır?</a>
                     <div id="auth-buttons">
                         <!-- Will be filled by JavaScript -->
                     </div>
@@ -86,10 +86,12 @@
                         {# Varsayılan bir resim gösterilebilir #}
                         <img src="https://via.placeholder.com/800x600?text=Resim+Yok" alt="{{ auction.title }}" class="w-full h-full object-cover">
                     {% endif %}
-                    <button id="favorite-btn" class="absolute top-4 right-4 p-3 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition">
-                        {# Favori durumu dinamik olarak ayarlanabilir #}
-                        <i class="fas fa-heart text-xl"></i>
-                    </button>
+                    {% if request.user.is_authenticated %}
+                    <button id="favorite-btn"
+                        class="favorite-btn absolute top-4 right-4 p-3 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition"
+                        data-id="{{ auction.id }}">
+                        <i class="fas fa-heart text-xl {% if is_favorite %}text-red-500{% else %}text-gray-400{% endif %}"></i>
+                    </button>         {% endif %}
                 </div>
 
                 <!-- Product Info -->
@@ -157,6 +159,15 @@
                     <!-- Bid Form -->
                     {% if auction.status != "sold" and request.user != auction.owner %}
                     <div id="bid-form-container" class="bg-gray-50 p-4 rounded-lg hidden">
+                        <!-- Hemen Satın Al Butonu -->
+                        {% if auction.is_active and auction.status == "active" and auction.buy_now_price and request.user != auction.owner %}
+                        <div id="buy-now-container" class="mt-4">
+                            <button id="buy-now-button"
+                                class="w-full px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
+                                Hemen Satın Al ({{ auction.buy_now_price }} ₺)
+                            </button>
+                        </div>
+                        {% endif %}
                         <h3 class="text-lg font-medium mb-4">Teklif Ver</h3>
                         <form id="bid-form">
                             <div class="flex space-x-2">
@@ -201,7 +212,7 @@
                     <!-- Bids Content (Hidden by default) -->
                     <div id="bids-content" class="hidden p-6">
                         <h2 class="text-xl font-semibold mb-4">Teklif Geçmişi</h2>
-                        <div class="space-y-4">
+                        <div id="live-bid-list" class="space-y-4">
                             {# Teklifleri döngü ile listele #}
                             {% for bid in auction.bids.all %}
                             
@@ -367,6 +378,8 @@
     <script>
         const token = localStorage.getItem('access');
         const isLoggedIn = !!token;
+        const auctionOwner = document.body.dataset.owner;
+       
         // Tab switching logic
         const descriptionTab = document.getElementById('description-tab');
         const bidsTab = document.getElementById('bids-tab');
@@ -377,7 +390,7 @@
         const currentUsername = localStorage.getItem("username");
         const tabs = [descriptionTab, bidsTab, commentsTab];
         const contents = [descriptionContent, bidsContent, commentsContent];
-
+        let auctionId;
         document.addEventListener('DOMContentLoaded', function() {
               setupDropdownToggle();
     renderAuthButtons();
@@ -409,7 +422,7 @@
   </button>
   <div id="user-menu" class="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg py-1 hidden z-50">
       <a href="/profile/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-user mr-2"></i> Profilim</a>
-      <a href="/favorites/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-heart mr-2"></i> Favorilerim</a>
+      <a href="/favorite/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-heart mr-2"></i> Favorilerim</a>
       <a href="/auctions/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-tag mr-2"></i> İlanlarım</a>
       <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap</a>
   </div>
@@ -518,23 +531,97 @@
         });
 
         // Favorite button animation (example)
-        const favoriteBtn = document.getElementById('favorite-btn');
-        favoriteBtn.addEventListener('click', () => {
-            const icon = favoriteBtn.querySelector('i');
-            icon.classList.toggle('text-red-500'); // Toggle color
-            icon.classList.toggle('text-gray-400'); // Toggle color
-            icon.classList.add('heart-animation');
-            setTimeout(() => icon.classList.remove('heart-animation'), 800);
-            // Add logic here to actually save/remove favorite via API
-        });
+        document.querySelectorAll('.favorite-btn').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const productId = this.getAttribute('data-id');
+                    const heartIcon = this.querySelector('i');
+
+                    // Toggle animation
+                    this.classList.add('heart-animation');
+                    setTimeout(() => {
+                        this.classList.remove('heart-animation');
+                    }, 800);
+
+                    // 🧠 YENİ FAVORİ API KODU BURADA
+                    fetch(`/api/auctions/${productId}/favorite/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('access')}`
+                        },
+                        body: JSON.stringify({})
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Favori işleminde hata");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Favori güncellendi:", data);
+
+                            // Kalp ikonunu renk değiştir
+                            heartIcon.classList.toggle('text-red-500');
+                            heartIcon.classList.toggle('text-gray-400');
+                        })
+                        .catch(err => {
+                            console.error("Favori API hatası:", err);
+                        });
+                });
+            });
+
 
         // Mobile menu toggle (example, adjust if needed)
         // ... (Navbar'daki mobil menü script'i buraya da eklenebilir veya merkezi bir JS dosyasından yönetilebilir) ...
     document.addEventListener('DOMContentLoaded', () => {
     const currentUsername = localStorage.getItem("username");
     const auctionOwner = document.body.dataset.owner;
-console.log(auctionOwner);
-console.log(currentUsername);
+    const buyNowButton = document.getElementById('buy-now-button');
+        if (buyNowButton) {
+            buyNowButton.addEventListener('click', async () => {
+                const token = localStorage.getItem("access");
+                const auctionId = window.location.pathname.split('/').filter(Boolean).pop();
+
+                const confirmBuy = confirm("Bu ürünü hemen satın almak istiyor musunuz?");
+                if (!confirmBuy) return;
+
+                try {
+                    // 1. Satın alma işlemini başlat
+                    const res = await fetch(`/api/auctions/${auctionId}/buy-now/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        }
+                    });
+
+                    if (!res.ok) {
+                        const data = await res.json();
+                        alert(data.detail || "Satın alma işlemi başlatılamadı.");
+                        return;
+                    }
+
+                    // 2. Ödemeyi tamamla
+                    const payRes = await fetch(`/api/auctions/${auctionId}/complete-payment/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        }
+                    });
+
+                    if (payRes.ok) {
+                        alert("Satın alma işlemi tamamlandı.");
+                        location.reload();
+                    } else {
+                        const data = await payRes.json();
+                        alert(data.detail || "Ödeme tamamlanamadı.");
+                    }
+                } catch (err) {
+                    console.error("Buy now error:", err);
+                    alert("Sunucuya ulaşılamadı.");
+                }
+            });
+        }
 
     const bidForm = document.querySelector('#bid-submit-button')?.closest('div.bg-gray-50'); // teklif form container'ı
     const acceptRejectArea = document.querySelector('#bids-content'); // teklif geçmişi alanı
@@ -613,7 +700,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Teklif gönderme işlemi
     const bidForm = document.getElementById('bid-form');
-bidForm.addEventListener('submit', async (e) => {
+    bidForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const amount = parseFloat(document.getElementById('bid-amount').value);
@@ -717,9 +804,122 @@ document.addEventListener('DOMContentLoaded', function() {
             renderAuthButtons();
             setupLogout();
         });
+            document.addEventListener('DOMContentLoaded', () => {
+                auctionId = window.location.pathname.split('/').filter(Boolean).pop();
 
+                const ws = new WebSocket(`ws://192.168.0.4:8000/ws/auctions/${auctionId}/`);
 
-        
+                ws.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    console.log("Yeni WebSocket mesajı:", data);
+
+                    if (data.type === 'new_bid') {
+                        const bid = data.bid;
+                        const bidElement = document.querySelector(`[data-bid-id="${bid.id}"]`);
+
+                        if (bidElement) {
+                            // 🛠 Güncelleme: Statü rozeti güncelleniyor
+                            const statusSpan = bidElement.querySelector('span.inline-block');
+                            if (statusSpan) {
+                                statusSpan.className = "inline-block px-3 py-1 text-xs font-medium rounded-full";
+                                if (bid.status === 'cancelled') {
+                                    statusSpan.classList.add('bg-yellow-100', 'text-yellow-800');
+                                    statusSpan.textContent = "İptal Edildi";
+                                } else if (bid.status === 'rejected') {
+                                    statusSpan.classList.add('bg-red-100', 'text-red-800');
+                                    statusSpan.textContent = "Reddedildi";
+                                } else if (bid.status === 'accepted') {
+                                    statusSpan.classList.add('bg-green-100', 'text-green-800');
+                                    statusSpan.textContent = "Kabul Edildi";
+                                } else {
+                                    statusSpan.classList.add('bg-gray-100', 'text-gray-800');
+                                    statusSpan.textContent = "Beklemede";
+                                }
+                            }
+
+                            // Yönetim butonlarını kaldır
+                            const buttons = bidElement.querySelectorAll('.accept-btn, .reject-btn');
+                            buttons.forEach(b => b.remove());
+
+                            return; // Güncellendi, yeni eklemeye gerek yok
+                        }
+
+                        // Eğer teklif daha önce eklenmemişse, yeni olarak DOM’a eklenir:
+                        const bidListContainer = document.getElementById('live-bid-list');
+                        const bidHtml = `
+            <div class="flex items-start p-4 bg-gray-50 rounded-lg" data-bid-id="${bid.id}" data-status="${bid.status}">
+                <div class="flex-1">
+                    <div class="flex justify-between">
+                        <h4 class="font-medium">${bid.user_username}</h4>
+                        <span class="text-sm text-gray-500">az önce</span>
+                    </div>
+                    <p class="text-2xl font-bold text-indigo-600 mt-1">${parseFloat(bid.amount).toLocaleString()} ₺</p>
+                    <div class="mt-2">
+                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full ${bid.status === 'cancelled' ? 'bg-yellow-100 text-yellow-800' :
+                                bid.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    bid.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                        'bg-gray-100 text-gray-800'
+                            }">${bid.status === 'cancelled' ? 'İptal Edildi' :
+                                bid.status === 'rejected' ? 'Reddedildi' :
+                                    bid.status === 'accepted' ? 'Kabul Edildi' : 'Beklemede'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+                        bidListContainer.insertAdjacentHTML('afterbegin', bidHtml);
+                        const existingBid = document.querySelector(`[data-bid-id="${bid.id}"]`);
+                        if (existingBid) {
+                            // Statü rozetini güncelle
+                            const statusSpan = existingBid.querySelector('span.inline-block');
+                            if (statusSpan) {
+                                statusSpan.className = "inline-block px-3 py-1 text-xs font-medium rounded-full";
+                                if (bid.status === 'cancelled') {
+                                    statusSpan.classList.add('bg-yellow-100', 'text-yellow-800');
+                                    statusSpan.textContent = "İptal Edildi";
+                                } else if (bid.status === 'rejected') {
+                                    statusSpan.classList.add('bg-red-100', 'text-red-800');
+                                    statusSpan.textContent = "Reddedildi";
+                                } else if (bid.status === 'accepted') {
+                                    statusSpan.classList.add('bg-green-100', 'text-green-800');
+                                    statusSpan.textContent = "Kabul Edildi";
+                                } else {
+                                    statusSpan.classList.add('bg-gray-100', 'text-gray-800');
+                                    statusSpan.textContent = "Beklemede";
+                                }
+                            }
+                        }
+                        if (currentUsername === auctionOwner && bid.status === 'pending') {
+                            const bidElement = document.querySelector(`[data-bid-id="${bid.id}"]`);
+                            const bidContainer = bidElement.querySelector('.flex-1');
+
+                            const controls = document.createElement('div');
+                            controls.className = "mt-2 flex gap-2";
+                            controls.innerHTML = `
+        <button type="button" class="px-3 py-1 text-sm bg-green-500 text-white rounded accept-btn" data-id="${bid.id}">Kabul Et</button>
+        <button type="button" class="px-3 py-1 text-sm bg-red-500 text-white rounded reject-btn" data-id="${bid.id}">Reddet</button>
+    `;
+
+                            bidContainer.appendChild(controls);
+                        }
+                        // BONUS: Mevcut teklif ve teklif sayısını güncelle
+                        const currentBidEl = document.querySelector('.text-3xl.text-indigo-600');
+                        if (currentBidEl) currentBidEl.textContent = `${parseFloat(bid.amount).toLocaleString()} ₺`;
+
+                        const bidCountTab = document.querySelector('#bids-tab');
+                        if (bidCountTab) {
+                            const match = bidCountTab.textContent.match(/\d+/);
+                            if (match) {
+                                const newCount = parseInt(match[0]) + 1;
+                                bidCountTab.textContent = `Teklifler (${newCount})`;
+                            }
+                        }
+                    } if (data.type === 'auction_sold') {
+                        alert("Bu ilan satıldı. Sayfa güncellenecek.");
+                        location.reload();
+                    }
+                };
+            });
+           
     </script>
 </body>
 </html>

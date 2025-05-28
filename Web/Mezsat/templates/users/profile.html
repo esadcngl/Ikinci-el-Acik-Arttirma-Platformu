@@ -127,12 +127,12 @@
                             </button>
                             <div id="user-menu" class="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg py-1 hidden z-50">
                                 <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-user mr-2"></i> Profilim</a>
-                                <a href="/favorites" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-heart mr-2"></i> Favorilerim</a>
-                                <a href="/auctions" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-tag mr-2"></i> İlanlarım</a>
+                                <a href="/favorite/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-heart mr-2"></i> Favorilerim</a>
+                                <a href="/auctions/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-tag mr-2"></i> İlanlarım</a>
                                 <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap</a>
                             </div>
                         </div>
-                        <a href="#" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                        <a href="{% url 'auction-create' %}" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
                             <i class="fas fa-plus mr-1"></i> İlan Ver
                         </a>
                     </div>
@@ -153,10 +153,10 @@
                 <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Nasıl Çalışır?</a>
                 <div class="pt-2 border-t">
                     <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Profilim</a>
-                    <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Favorilerim</a>
-                    <a href="#" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">İlanlarım</a>
+                    <a href="/favorite/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Favorilerim</a>
+                    <a href="/auctions/" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">İlanlarım</a>
                     <a href="#" id="mobile-logout-btn" class="block px-3 py-2 text-gray-700 hover:text-indigo-600">Çıkış Yap</a>
-                    <a href="#" class="block px-3 py-2 mt-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
+                    <a href="{% url 'auction-create' %}" class="block px-3 py-2 mt-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center">
                         <i class="fas fa-plus mr-1"></i> İlan Ver
                     </a>
                 </div>
@@ -218,16 +218,6 @@
                 <div id="favorites-content" class="fade-in">
                     <div class="mb-6 flex justify-between items-center">
                         <h2 class="text-xl font-semibold text-gray-800">Favori Ürünlerim</h2>
-                        <div class="flex items-center">
-                            <span class="text-sm text-gray-500 mr-2">Sırala:</span>
-                            <select class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option>Eklenme Tarihi (Yeniden Eskiye)</option>
-                                <option>Eklenme Tarihi (Eskiden Yeniye)</option>
-                                <option>Fiyat (Artan)</option>
-                                <option>Fiyat (Azalan)</option>
-                                <option>Bitiş Tarihi (Yakın)</option>
-                            </select>
-                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -521,7 +511,7 @@
         </div>
     </footer>
 
-    <script>
+    <script>    
         // Tab switching functionality
         document.getElementById('auctions-tab').addEventListener('click', function(e) {
             e.preventDefault();
@@ -1090,7 +1080,7 @@ document.querySelector('#settings-form').addEventListener('submit', async functi
     formData.append('profile_image', fileInput.files[0]);
     }
     try {
-        const res = await fetch('http://127.0.0.1:8000/api/profile/update/', {
+        const res = await fetch('/api/profile/update/', {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`

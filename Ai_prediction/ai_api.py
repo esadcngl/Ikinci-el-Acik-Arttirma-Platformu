@@ -13,17 +13,18 @@ classifier = pipeline(
 )
 
 # 📦 Tahmin edilecek açıklamalı kategoriler
+
 CATEGORIES = [
-    "Elektronik (telefon, bilgisayar, televizyon)",
-    "Moda (giyim, ayakkabı, aksesuar)",
-    "Ev & Yaşam (mobilya, ev tekstili)",
-    "Spor & Outdoor (spor ekipmanları)",
-    "Koleksiyon (antikalar, pul, figür)",
-    "Araçlar (otomobil, yedek parça)",
-    "Emlak (daire, arsa, konut)",
-    "Hizmetler (temizlik, tamir)",
-    "Hobi & Oyuncak (oyuncaklar, maketler)",
-    "Kitap, Film & Müzik"
+    "Elektronik ürünler (telefon, bilgisayar, televizyon vs.)",
+    "Moda ve giyim (kıyafet, ayakkabı, aksesuar)",
+    "Ev ve yaşam ürünleri (mobilya, ev dekorasyonu, mutfak araçları)",
+    "Spor ve outdoor ekipmanları (bisiklet, kamp eşyaları, fitness aletleri)",
+    "Otomotiv ve yedek parçalar (araba parçaları, araçlar)",
+    "Antika eşyalar (eski saatler, koleksiyon ürünleri)",
+    "Sanat eserleri ve el sanatları (resim, el işi, heykel)",
+    "Hobi ve oyuncaklar (lego, model uçak, maket)",
+    "Kitap, film ve müzik ürünleri (roman, CD, plak)",
+    "Diğer (kategori dışı ürünler)"
 ]
 
 @app.route("/predict/", methods=["POST"])
@@ -45,4 +46,4 @@ def predict():
     })
 
 if __name__ == "__main__":
-    app.run(port=5001)
+    app.run(host='0.0.0.0', port=5001)

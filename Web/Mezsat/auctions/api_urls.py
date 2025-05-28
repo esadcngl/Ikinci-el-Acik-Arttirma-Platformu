@@ -24,4 +24,9 @@ urlpatterns = [
     path('auctions/bids/<int:pk>/cancel/', CancelBidView.as_view(), name='bid-cancel'),
     path('categories/', category_list_api, name='category-list'),
     path("predict/", predict_view, name="predict"),
+    path("notifications/", NotificationListView.as_view(), name="notification-list"),
+    path("notifications/<int:notification_id>/read/", mark_notification_as_read),
+    path("notifications/mark-all-read/", mark_all_notifications_read),
+    path("notifications/clear/", clear_notifications),
+    path("add-balance/", AddBalanceView.as_view(), name="add-balance"),
 ]

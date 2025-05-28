@@ -82,7 +82,7 @@ class Favorite(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
-    icon = models.CharField(max_length=100, blank=True)
+    icon = models.CharField(max_length=100, blank=True,null=True)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='subcategories', on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
@@ -92,3 +92,16 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    link = models.CharField(max_length=255, blank=True, null=True)  # Örn: /auctions/15
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Bildirim ({self.user.username}): {self.message[:40]}"

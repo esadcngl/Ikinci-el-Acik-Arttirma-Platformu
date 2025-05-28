@@ -83,7 +83,7 @@
                     Mezsat ile istediğiniz ürünleri uygun fiyata alın, kullanmadıklarınızı satarak para kazanın.
                 </p>
                 <div class="mt-10 flex justify-center space-x-4">
-                    <a href="#" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-gray-100 transition">
+                    <a href="/kategoriler/" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-gray-100 transition">
                         <i class="fas fa-search mr-2"></i> Hemen Göz At
                     </a>
                     <a href="{% url 'auction-create' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 bg-opacity-60 hover:bg-opacity-70 transition">
@@ -97,7 +97,7 @@
     <!-- Categories Section -->
     <div class="max-w-7xl mx-auto py-12 px-4 sm:py-16 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12" id="category">Kategoriler</h2>
-        <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             <!-- Category items will be added by JavaScript -->
         </div>
     </div>
@@ -107,7 +107,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-3xl font-extrabold text-gray-900">Son Eklenen İlanlar</h2>
-                <a href="kategoriler/elektronik/" class="text-indigo-600 hover:text-indigo-800 font-medium">Tümünü Gör <i class="fas fa-arrow-right ml-1"></i></a>
+                <a href="/kategoriler/" class="text-indigo-600 hover:text-indigo-800 font-medium">Tümünü Gör <i class="fas fa-arrow-right ml-1"></i></a>
             </div>
             <div id="auctions-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <!-- Auction cards will be added by JavaScript -->
@@ -167,19 +167,19 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 gap-8 md:grid-cols-4 text-center">
                 <div>
-                    <div class="text-4xl font-bold mb-2">10.000+</div>
+                    <div class="text-4xl font-bold mb-2">5+</div>
                     <div class="text-indigo-100">Aktif Kullanıcı</div>
                 </div>
                 <div>
-                    <div class="text-4xl font-bold mb-2">5.000+</div>
+                    <div class="text-4xl font-bold mb-2">1+</div>
                     <div class="text-indigo-100">Tamamlanan Açık Artırma</div>
                 </div>
                 <div>
-                    <div class="text-4xl font-bold mb-2">50+</div>
+                    <div class="text-4xl font-bold mb-2">8+</div>
                     <div class="text-indigo-100">Farklı Kategori</div>
                 </div>
                 <div>
-                    <div class="text-4xl font-bold mb-2">%99</div>
+                    <div class="text-4xl font-bold mb-2">%100</div>
                     <div class="text-indigo-100">Müşteri Memnuniyeti</div>
                 </div>
             </div>
@@ -223,12 +223,7 @@
                         <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                     <div class="mt-4">
-                        <p class="text-gray-300">Uygulamayı indirin:</p>
-                        <div class="flex space-x-2 mt-2">
-                            <a href="#" class="block"><img src="https://via.placeholder.com/120x40?text=App+Store" alt="App Store" class="h-10"></a>
-                            <a href="#" class="block"><img src="https://via.placeholder.com/120x40?text=Google+Play" alt="Google Play" class="h-10"></a>
-                        </div>
-                    </div>
+                       
                 </div>
             </div>
             <div class="mt-12 pt-8 border-t border-gray-700 text-center">
@@ -236,79 +231,47 @@
             </div>
         </div>
     </footer>
-
+    <div id="balance-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+          <h2 class="text-lg font-semibold mb-4">Bakiye Yükle</h2>
+          <label class="block mb-2 text-sm font-medium text-gray-700">Yüklemek istediğiniz tutar:</label>
+          <input type="number" id="balance-amount" class="w-full border border-gray-300 rounded-md p-2 mb-4" min="1" />
+          <div class="flex justify-end space-x-2">
+            <button id="cancel-balance" class="px-4 py-2 text-gray-600 hover:text-gray-800">İptal</button>
+            <button id="confirm-balance" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Yükle</button>
+          </div>
+        </div>
+      </div>
     <script>
         // Check if user is logged in (has token)
         const token = localStorage.getItem('access');
         const isLoggedIn = !!token;
         
         // Sample data for categories
-        const categories = [
-            { id: 1, name: 'Elektronik', icon: 'fa-laptop' },
-            { id: 2, name: 'Moda', icon: 'fa-tshirt' },
-            { id: 3, name: 'Kitap', icon: 'fa-book' },
-            { id: 4, name: 'Mobilya', icon: 'fa-couch' },
-            { id: 5, name: 'Spor', icon: 'fa-running' },
-            { id: 6, name: 'Koleksiyon', icon: 'fa-chess-queen' },
-            { id: 7, name: 'Otomotiv', icon: 'fa-car' },
-            { id: 8, name: 'Ev & Yaşam', icon: 'fa-home' },
-            { id: 9, name: 'Anne & Bebek', icon: 'fa-baby' },
-            { id: 10, name: 'Müzik', icon: 'fa-music' },
-            { id: 11, name: 'Film & Dizi', icon: 'fa-film' },
-            { id: 12, name: 'Diğer', icon: 'fa-ellipsis-h' }
-        ];
+        async function renderCategories() {
+                const container = document.querySelector('.grid.grid-cols-2.gap-6');
+                container.innerHTML = '';
+                try {
+                    const res = await fetch('/api/categories/');
+                    const data = await res.json();
+                    data.forEach(category => {
+                        const div = document.createElement('div');
+                        div.className = 'category-icon';
+                        div.innerHTML = `
+                <a href="/kategoriler/${category.slug}/" class="flex flex-col items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition">
+                    <div class="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 mb-2">
+                        <i class="${category.icon || 'fas fa-tag'}"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">${category.name}</span>
+                </a>
+            `;
+                        container.appendChild(div);
+                    });
+                } catch (err) {
+                    console.error("Kategori listesi alınamadı:", err);
+                }
+        }
         
-        // Sample data for auctions
-        const auctions = [
-            { 
-                id: 1, 
-                title: 'Apple MacBook Pro 2021 M1', 
-                price: 25000, 
-                category: 'Elektronik', 
-                image: 'https://via.placeholder.com/300x200?text=MacBook+Pro', 
-                isFavorite: false 
-            },
-            { 
-                id: 2, 
-                title: 'Nike Air Jordan 1 Retro', 
-                price: 3500, 
-                category: 'Moda', 
-                image: 'https://via.placeholder.com/300x200?text=Nike+Jordan', 
-                isFavorite: true 
-            },
-            { 
-                id: 3, 
-                title: 'Suç ve Ceza - Dostoyevski', 
-                price: 75, 
-                category: 'Kitap', 
-                image: 'https://via.placeholder.com/300x200?text=Suç+ve+Ceza', 
-                isFavorite: false 
-            },
-            { 
-                id: 4, 
-                title: 'Antik Ahşap Masa', 
-                price: 4500, 
-                category: 'Mobilya', 
-                image: 'https://via.placeholder.com/300x200?text=Ahşap+Masa', 
-                isFavorite: true 
-            },
-            { 
-                id: 5, 
-                title: 'iPhone 13 Pro 128GB', 
-                price: 18000, 
-                category: 'Elektronik', 
-                image: 'https://via.placeholder.com/300x200?text=iPhone+13', 
-                isFavorite: false 
-            },
-            { 
-                id: 6, 
-                title: 'Adidas Ultraboost 21', 
-                price: 2200, 
-                category: 'Spor', 
-                image: 'https://via.placeholder.com/300x200?text=Ultraboost', 
-                isFavorite: false 
-            }
-        ];
         function setupDropdownToggle() {
   document.addEventListener('click', function (e) {
     const button = document.getElementById('user-menu-button');
@@ -322,7 +285,59 @@
       menu.classList.add('hidden');
     }
   });
-}
+} 
+async function fetchUserBalance() {
+        try {
+            const res = await fetch('/api/profile/', {
+                headers: { Authorization: 'Bearer ' +  token },
+            });
+            const data = await res.json();
+            document.getElementById('user-balance').textContent = `${parseFloat(data.balance).toLocaleString()} ₺`;
+        } catch (e) {
+            document.getElementById('user-balance').textContent = '₺0';
+        }
+    }
+
+    async function fetchNotifications() {
+        try {
+            const res = await fetch('/api/notifications/', {
+                headers: { Authorization: 'Bearer ' +  token },
+            });
+            const data = await res.json();
+
+            const unread = data.filter(n => !n.is_read);
+            const countEl = document.getElementById('notification-count');
+            const listEl = document.getElementById('notification-list');
+
+            if (unread.length > 0) {
+                countEl.classList.remove('hidden');
+                countEl.textContent = unread.length;
+            } else {
+                countEl.classList.add('hidden');
+            }
+
+            listEl.innerHTML = '';
+            data.slice(0, 10).forEach(n => {
+                const li = document.createElement('li');
+                li.className = 'p-3 hover:bg-gray-50 cursor-pointer';
+                li.innerHTML = `
+        ${n.message}<br>
+        <a href="${n.link}" class="text-indigo-500 text-sm">İlana Git</a>
+      `;
+                li.addEventListener('click', async () => {
+                    await fetch(`/api/notifications/${n.id}/read/`, {
+                        method: 'POST',
+                        headers: { Authorization: 'Bearer ' + localStorage.getItem('access') }
+                    });
+                });
+                listEl.appendChild(li);
+            });
+        } catch (err) {
+            console.error('Bildirim alınamadı:', err);
+        }
+    }
+
+
         async function renderAuthButtons() {
     const authButtonsContainer = document.getElementById('auth-buttons');
     const mobileAuthButtonsContainer = document.getElementById('mobile-auth-buttons');
@@ -341,22 +356,44 @@
             const user = await response.json(); // Gerçek kullanıcı
 
             const desktopContent = `
-  <div class="flex items-center space-x-4">
+  <div class="flex items-center space-x-4 relative">
+    
+    <!-- Bakiye -->
+    <button id="balance-button" class="flex items-center bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">
+      💰 <span class="ml-1" id="user-balance">Yükleniyor...</span>
+      <span class="ml-2 text-indigo-600 font-bold text-lg">+</span>
+    </button>
+
+    <!-- Bildirimler -->
+    <div class="relative">
+      <button id="notification-button" class="relative text-gray-600 hover:text-indigo-600">
+        🔔
+        <span id="notification-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full hidden">0</span>
+      </button>
+      <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-md shadow-lg z-50 transition-all duration-200">
+        <ul id="notification-list" class="divide-y divide-gray-100 max-h-72 overflow-y-auto text-sm">
+          <!-- JS ile doldurulacak -->
+        </ul>
+        <div class="border-t px-4 py-2 text-center space-x-3">
+            <button id="mark-all-read" class="text-sm text-indigo-600 hover:underline">Tümünü Okundu Yap</button>
+             <button id="delete-all-notifications" class="text-sm text-red-500 hover:underline">Tümünü Sil</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kullanıcı Menüsü -->
     <div class="relative">
       <button id="user-menu-button" class="flex items-center space-x-1 text-gray-700 w-28 hover:text-indigo-600">
         <span>${user.username}</span>
         <i class="fas fa-chevron-down text-xs"></i>
       </button>
       <div id="user-menu" class="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg py-1 hidden z-50">
-        <a href="/profile/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">  <i class="fas fa-user mr-2"></i> Profilim</a>
-        <a href="/favorites/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"> <i class="fas fa-heart mr-2"></i> Favorilerim</a>
+        <a href="/profile/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-user mr-2"></i> Profilim</a>
+        <a href="/favorite/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-heart mr-2"></i> Favorilerim</a>
         <a href="/auctions/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-tag mr-2"></i> İlanlarım</a>
         <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap</a>
       </div>
     </div>
-    <a href="/auction/create/" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-      <i class="fas fa-plus mr-1"></i> İlan Ver
-    </a>
   </div>
 `;
 
@@ -413,26 +450,29 @@
             </a>
         `;
     }
-}
-        
-        // Render categories
-        function renderCategories() {
-            const container = document.querySelector('.grid.grid-cols-2.gap-6');
-            
-            categories.forEach(category => {
-                const categoryElement = document.createElement('div');
-                categoryElement.className = 'category-icon';
-                categoryElement.innerHTML = `
-                    <a href="#" class="flex flex-col items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 mb-2">
-                            <i class="fas ${category.icon}"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-900">${category.name}</span>
-                    </a>
-                `;
-                container.appendChild(categoryElement);
+    document.getElementById('balance-button')?.addEventListener('click', () => {
+                document.getElementById('balance-modal')?.classList.remove('hidden');
             });
-        }
+}
+
+        // Render categories
+        // function renderCategories() {
+        //     const container = document.querySelector('.grid.grid-cols-2.gap-6');
+            
+        //     categories.forEach(category => {
+        //         const categoryElement = document.createElement('div');
+        //         categoryElement.className = 'category-icon';
+        //         categoryElement.innerHTML = `
+        //             <a href="#" class="flex flex-col items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition">
+        //                 <div class="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 mb-2">
+        //                     <i class="fas ${category.icon}"></i>
+        //                 </div>
+        //                 <span class="text-sm font-medium text-gray-900">${category.name}</span>
+        //             </a>
+        //         `;
+        //         container.appendChild(categoryElement);
+        //     });
+        // }
         
   async function renderAuctions() {
   const container = document.getElementById('auctions-container');
@@ -443,7 +483,7 @@
     const data = await response.json();
     const token = localStorage.getItem('access'); // Giriş var mı diye bak
 
-    data.forEach(auction => {
+    data.slice(0, 6).forEach(auction => {
       const now = new Date();
       const endTime = new Date(auction.end_time);
       const timeLeft = Math.max(0, Math.ceil((endTime - now) / (1000 * 60 * 60 * 24)));
@@ -454,11 +494,7 @@
       // Kalp ikonu sadece giriş yapmışsa gösterilecek
       let favoriteButtonHTML = '';
       if (token) {
-        favoriteButtonHTML = `
-          <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition favorite-btn" data-id="${auction.id}" data-favorited="${auction.is_favorited}">
-            <i class="${auction.is_favorited ? 'fas' : 'far'} fa-heart text-lg"></i>
-          </button>
-        `;
+        
       }
 
       auctionElement.innerHTML = `
@@ -522,14 +558,17 @@ function setupFavoriteButtons() {
         }
 
         // Başarılı olursa kalbi değiştir
-        const heartIcon = this.querySelector('i');
         if (isFavorited) {
-          heartIcon.classList.remove('fas');
-          heartIcon.classList.add('far');
-        } else {
-          heartIcon.classList.remove('far');
-          heartIcon.classList.add('fas');
-        }
+              heartIcon.classList.remove('fas');
+              heartIcon.classList.add('far');
+              button.classList.remove('text-red-500');
+              button.classList.add('text-gray-400');
+          } else {
+              heartIcon.classList.remove('far');
+              heartIcon.classList.add('fas');
+              button.classList.remove('text-gray-400');
+              button.classList.add('text-red-500');
+          }
 
         // Güncelle
         isFavorited = !isFavorited;
@@ -643,8 +682,135 @@ function setupFavoriteButtons() {
             renderCategories();
             renderAuctions();
             // renderFavorites();
+            setupNotificationWebSocket();
+            setTimeout(() => {
+                fetchUserBalance();
+                fetchNotifications();
+            }, 1000);
             setupLogout();
         });
+        document.addEventListener('DOMContentLoaded', () => {
+                const notifBtn = document.getElementById('notification-button');
+                const notifDrop = document.getElementById('notification-dropdown');
+                notifBtn?.addEventListener('click', () => {
+                    notifDrop?.classList.toggle('hidden');
+                });
+
+                // Sayfa yüklendiğinde balance ve bildirimleri çek
+                fetchUserBalance();
+                fetchNotifications();
+                document.getElementById('balance-button')?.addEventListener('click', () => {
+                document.getElementById('balance-modal')?.classList.remove('hidden');
+            });
+
+            document.getElementById('cancel-balance')?.addEventListener('click', () => {
+                document.getElementById('balance-modal')?.classList.add('hidden');
+            });
+
+            document.getElementById('confirm-balance')?.addEventListener('click', async () => {
+                const amount = parseFloat(document.getElementById('balance-amount').value);
+                if (!amount || amount <= 0) return alert("Geçerli bir tutar giriniz");
+
+                try {
+                    const res = await fetch('/api/add-balance/', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('access'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ amount })
+                    });
+
+                    if (!res.ok) throw new Error("Bakiye yükleme başarısız");
+
+                    // Güncel bakiyeyi göster
+                    await fetchUserBalance();
+                    document.getElementById('balance-modal')?.classList.add('hidden');
+                    document.getElementById('balance-amount').value = '';
+                    alert('Bakiye başarıyla yüklendi!');
+                } catch (err) {
+                    console.error("Bakiye yükleme hatası:", err);
+                    alert("Bakiye yüklenemedi.");
+                }
+            });
+            });
+        document.addEventListener('click', function (e) {
+                    const notifBtn = document.getElementById('notification-button');
+                    const notifDrop = document.getElementById('notification-dropdown');
+
+                    // Bildirim butonuna tıklandıysa toggle
+                    if (notifBtn && notifBtn.contains(e.target)) {
+                        notifDrop?.classList.toggle('hidden');
+                    }
+                    // Menü dışına tıklanırsa kapat
+                    else if (notifDrop && !notifDrop.contains(e.target)) {
+                        notifDrop.classList.add('hidden');
+                    }
+                    const markAllBtn = document.getElementById('mark-all-read');
+                    const deleteAllBtn = document.getElementById('delete-all-notifications');
+                    markAllBtn?.addEventListener('click', async () => {
+                try {
+                    const res = await fetch('/api/notifications/mark-all-read/', {
+                        method: 'POST',
+                        headers: { Authorization: 'Bearer ' + localStorage.getItem('access') }
+                    });
+                    if (res.ok) {
+                        document.getElementById('notification-count')?.classList.add('hidden');
+                        document.getElementById('notification-list').innerHTML = '<li class="p-3 text-gray-500">Hiç bildirim yok.</li>';
+                    }
+                } catch (err) {
+                    console.error('Okundu yapma hatası:', err);
+                }
+            });
+            deleteAllBtn?.addEventListener('click', async () => {
+                const confirmDelete = confirm("Tüm bildirimleri silmek istediğinize emin misiniz?");
+                if (!confirmDelete) return;
+                try {
+                    const res = await fetch('/api/notifications/clear/', {
+                        method: 'DELETE',
+                        headers: { Authorization: 'Bearer ' + localStorage.getItem('access') }
+                    });
+                    if (res.ok) {
+                        document.getElementById('notification-count')?.classList.add('hidden');
+                        document.getElementById('notification-list').innerHTML = '<li class="p-3 text-gray-500">Hiç bildirim yok.</li>';
+                    }
+                } catch (err) {
+                    console.error('Bildirimleri silme hatası:', err);
+                }
+            });
+         });
+         function setupNotificationWebSocket() {
+                const token = localStorage.getItem('access');
+                if (!token) return;
+
+                const socket = new WebSocket(`ws://${window.location.host}/ws/notifications/?token=${token}`);
+
+                socket.onmessage = function (e) {
+                    const data = JSON.parse(e.data);
+
+                    if (data.type === "notification") {
+                        const countEl = document.getElementById('notification-count');
+                        const listEl = document.getElementById('notification-list');
+
+                        const li = document.createElement('li');
+                        li.className = 'p-3 hover:bg-gray-50 cursor-pointer';
+                        li.innerHTML = `
+                ${data.message}<br>
+                <a href="${data.link}" class="text-indigo-500 text-sm">İlana Git</a>
+            `;
+                        li.addEventListener('click', async () => {
+                            await fetch(`/api/notifications/${data.id}/read/`, {
+                                method: 'POST',
+                                headers: { Authorization: 'Bearer ' + localStorage.getItem('access') }
+                            });
+                        });
+
+                        listEl.prepend(li);
+                        countEl.classList.remove('hidden');
+                        countEl.textContent = parseInt(countEl.textContent || "0") + 1;
+                    }
+                };
+            }
     </script>
 </body>
 </html>

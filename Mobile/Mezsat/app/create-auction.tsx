@@ -20,7 +20,9 @@ export default function CreateAuctionScreen() {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<{ id: number; name: string } | null>(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  
+  const [aiCategory, setAiCategory] = useState('');
+  const [aiPrice, setAiPrice] = useState('');
+  const [predicting, setPredicting] = useState(false);
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -38,7 +40,35 @@ export default function CreateAuctionScreen() {
       console.error('Kategori çekme hatası:', error);
     }
   };
-
+  const handleAIPredict = async () => {
+    if (!title || !description) {
+      Alert.alert("Uyarı", "Başlık ve açıklama dolu olmalı.");
+      return;
+    }
+  
+    setPredicting(true);
+    try {
+      const response = await fetch('http://192.168.0.4:5001/predict/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description }),
+      });
+  
+      const result = await response.json();
+  
+      if (!response.ok) throw new Error(result.error || "Tahmin başarısız.");
+  
+      setAiCategory(result.predicted_category);
+      setAiPrice(result.estimated_price_web);
+  
+      Alert.alert("Tahminler", `Kategori: ${result.predicted_category}\nFiyat: ${result.estimated_price_web}`);
+    } catch (err: any) {
+      Alert.alert("Hata", err.message || "Tahmin sırasında sorun oluştu.");
+    } finally {
+      setPredicting(false);
+    }
+  };
+  
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -120,6 +150,39 @@ export default function CreateAuctionScreen() {
         {selectedCategory ? selectedCategory.name : 'Kategori Seç'}
       </Text>
       </TouchableOpacity>
+      <TouchableOpacity
+  style={[styles.aiButton, predicting && { opacity: 0.6 }]}
+  onPress={handleAIPredict}
+  disabled={predicting}
+>
+  {predicting ? (
+    <ActivityIndicator color="white" />
+  ) : (
+    <Text style={styles.saveButtonText}>🤖 Yapay Zeka ile Tahmin Et</Text>
+  )}
+</TouchableOpacity>
+{aiCategory ? (
+  <TouchableOpacity
+    style={[styles.saveButton, { marginTop: 10, backgroundColor: '#e0e7ff' }]}
+    onPress={() => {
+      const match = categories.find(cat =>
+        cat.name.toLowerCase().includes(aiCategory.toLowerCase())
+      );
+      if (match) setSelectedCategory(match);
+
+      const priceMatch = aiPrice.match(/ort: ₺([\d.,]+)/i);
+      if (priceMatch) {
+        const avg = parseInt(priceMatch[1].replace(/\D/g, ''));
+        setStartingPrice((avg * 0.8).toString());
+        setBuyNowPrice(avg.toString());
+      }
+
+      Alert.alert("Uygulandı", "Tahminler forma yansıtıldı.");
+    }}
+  >
+    <Text style={[styles.saveButtonText, { color: '#1e40af', }]}>Tahminleri Uygula</Text>
+  </TouchableOpacity>
+) : null}
       <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
         <Text style={styles.dateButtonText}>Bitiş Tarihi: {endDate.toLocaleDateString('tr-TR')}</Text>
       </TouchableOpacity>
@@ -178,7 +241,7 @@ const styles = StyleSheet.create({
   image: { width: '100%', height: '100%', borderRadius: 8 },
   saveButton: { backgroundColor: '#4f46e5', padding: 16, borderRadius: 8, alignItems: 'center' },
   saveButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-  dateButton: { padding: 12, borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, marginBottom: 16, alignItems: 'center' },
+  dateButton: { padding: 12, borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, marginBottom: 16, alignItems: 'center', marginTop:15},
   dateButtonText: { color: '#111827', fontSize: 16 },
   selectButton: {
     borderWidth: 1,
@@ -207,5 +270,12 @@ const styles = StyleSheet.create({
   modalItemText: {
     fontSize: 16,
     textAlign: 'center',
+  },
+  aiButton: {
+    backgroundColor: '#4338ca',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });
